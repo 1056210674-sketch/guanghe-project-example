@@ -55,8 +55,8 @@
 | Web 类型检查与构建 | 使用随快照提供的生成类型文件可通过 |
 | Web lint | 原有画布组件 1 项 purity 错误 |
 | Web API 类型一致性 | 原有 Canvas 契约不同步，未通过 |
-| Web 全量测试 | 首次运行 1,287 passed、93 failed、1 skipped；其中 1 项为 SSE 契约测试的旧目录路径，已适配本仓库并定向复核，其余失败未在本次公开整理中修复 |
-| Java clean verify | 运行结果在本地发布检查记录中另行汇总 |
+| Web 全量测试 | 首次运行 1,287 passed、93 failed、1 skipped；其中 1 项为 SSE 契约测试的旧目录路径，已适配本仓库，定向复核 2 项测试通过；其余 92 项失败未在本次公开整理中修复，全量套件未重跑 |
+| Java clean verify | 标准 build.ps1 入口通过；共 1,967 项测试，0 failures、0 errors、35 skipped（1,932 项通过） |
 | Gitleaks 8.30.1 | 经逐项审查测试夹具并记录精确例外后，未发现未处理命中 |
 | 浏览器检查 | README 首屏排版、Web 登录页品牌可读性已检查；未进行真实账号全业务验收 |
 

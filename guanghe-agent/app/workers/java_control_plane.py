@@ -1545,6 +1545,7 @@ class _ArticleContentResult(_JavaWorkerModel):
         "agent-bundle-v1.59.0",
         "agent-bundle-v1.60.0",
         "agent-bundle-v1.61.0",
+        "agent-bundle-v1.62.0",
         "agent-bundle-v1.62.1",
     ]
     usage: _ArticleResultUsage

@@ -1,6 +1,6 @@
 # GitHub 展示设置
 
-建议仓库管理员在 GitHub About 中设置：
+以下简介、官网链接与 12 个主题标签已于 2026-11-18 配置到本仓库 GitHub About；维护者可按实际业务继续调整。
 
 **Description**
 
