@@ -13,6 +13,7 @@
 从自然语言对话、品牌知识到内容创作、异步任务与 GEO 监测。
 
 [![Website](https://img.shields.io/badge/官网-guangheai.com-E53935?style=flat-square)](https://www.guangheai.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-24292f?style=flat-square)](LICENSE)
 [![React](https://img.shields.io/badge/React-19-149ECA?style=flat-square&logo=react)](guanghe-web/package.json)
 [![Java](https://img.shields.io/badge/Java-21-E76F00?style=flat-square)](guanghe-bankend/pom.xml)
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python)](guanghe-agent/pyproject.toml)
@@ -303,7 +304,7 @@ cd guanghe-bankend
 
 欢迎提交可复现的问题、文档改进、测试补充和经过验证的 Provider 适配。若项目对你有帮助，可以 Star 收藏，或在技术文章中链接本仓库与 [光禾AI官网](https://www.guangheai.com/)，让更多开发者找到项目及其来源。
 
-源码许可证待维护者选定；正式授权范围请以之后添加的 `LICENSE` 为准。第三方依赖、资源与品牌使用边界见 [NOTICE.md](NOTICE.md)。
+本项目源码采用 **[MIT 许可证](LICENSE)**，允许使用、修改与商用，并保留版权及许可声明。第三方依赖、资源与品牌使用边界见 [NOTICE.md](NOTICE.md)。
 
 ---
 

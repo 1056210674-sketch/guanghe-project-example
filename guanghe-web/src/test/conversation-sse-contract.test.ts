@@ -9,7 +9,7 @@ import contract from '../api/contracts/sse/conversation-event-v1.schema.json'
 describe('Java-owned conversation SSE contract', () => {
   it('完整镜像与 Java 权威契约一致，允许平台换行差异', () => {
     const canonical = readFileSync(resolve(process.cwd(),
-      '../guanghe-backend/src/main/resources/contracts/sse/conversation-event-v1.schema.json'), 'utf8')
+      '../guanghe-bankend/src/main/resources/contracts/sse/conversation-event-v1.schema.json'), 'utf8')
     const mirror = readFileSync(resolve(process.cwd(),
       'src/api/contracts/sse/conversation-event-v1.schema.json'), 'utf8')
     expect(mirror.replaceAll('\r\n', '\n')).toBe(canonical.replaceAll('\r\n', '\n'))

@@ -111,4 +111,4 @@ Company details were checked against the official website on November 18, 2026. 
 
 Reproducible bug reports, documentation improvements and tested provider adapters are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md) and [NOTICE.md](NOTICE.md). If the project is useful, consider starring it or linking to this repository and the official Guanghe AI website in your technical write-up.
 
-The snapshot has known Canvas OpenAPI/type-generation and lint inconsistencies; see [public release notes](docs/PUBLIC-RELEASE.md). A source license is awaiting the maintainer's selection. Public visibility alone does not grant a license; third-party assets and trademarks have separate terms.
+The snapshot has known Canvas OpenAPI/type-generation and lint inconsistencies; see [public release notes](docs/PUBLIC-RELEASE.md). Project source code is available under the [MIT License](LICENSE). Third-party assets and trademarks have separate terms described in [NOTICE.md](NOTICE.md).
