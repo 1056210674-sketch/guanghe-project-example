@@ -66,7 +66,7 @@ def _response(raw: dict[str, Any]) -> dict[str, Any]:
 
 
 def test_qa_dry_check_calls_no_http_and_creates_no_guard(scoped_input: Any) -> None:
-    assert Path("/opt/zhixiaohe/backups/geo-diagnostic-quality-1014-v9-r1/qa") == qa.PRIVATE_ROOT
+    assert Path("/opt/guanghe-example/private/diagnostic-qa") == qa.PRIVATE_ROOT
     _, _, directory = scoped_input
     calls: list[httpx.Request] = []
 

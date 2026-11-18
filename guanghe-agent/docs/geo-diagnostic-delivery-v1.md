@@ -154,7 +154,7 @@ findings 为 DISCOVERY/REPUTATION/COMPETITION/PUBLIC_RESEARCH；前三者需有�
 ## 私有 delivery-only QA
 
 `scripts/diagnostic_analysis_qa.py` 仅供 root 对既有冻结六样本作解读质量复核，默认仅离线检查。
-运行目录固定为测试服务器的 `/opt/zhixiaohe/backups/geo-diagnostic-quality-1014-v9-r1/qa`，必须 root-owned
+运行目录固定为测试服务器的 `/opt/guanghe-example/private/diagnostic-qa`，必须 root-owned
 0700/无 symlink；`quality-analysis-request.json` 必须 root-owned 0600。输入由 Java 完整已保存回答
 派生全文匹配标记，不由 Python 摘录推断；不更新旧 evidence/inputHash 或正式 READY 报告。
 显式 `--execute` 仅允许固定测试 hostname，用已有 Internal HMAC signer 向本机分析 API 发一次 POST，

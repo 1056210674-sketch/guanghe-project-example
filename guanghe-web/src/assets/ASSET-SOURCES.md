@@ -2,13 +2,13 @@
 
 本目录仅保留 Web M0 实际使用的资源：
 
-- `brand/company-logo-ai-hd-white.png`：复制自 `D:\Lyns\开发文件\光禾AI智能体框架-前端开发资源包\assets\brand\company-logo-ai-hd-white.png`。资源包说明其为负责人认可的第一阶段公司 Logo 高清白底版本；SHA-256 为 `C24F389245547AD04C9DDC6066B25AEE272501FE233CBAFE288D08E7EF545F75`。
-- `creative-mascot/creativeMascotAsset.ts`：内嵌自已审前端设计交付 `D:\coding-project\output\frontend-design-20261012-qinghe\figma-heguang-unified\agent-avatars\zhixiaohe-creative-pink-figma-128.png`，仅作为创作智能体在聊天空态和 assistant 消息中的粉色光禾AI智能体框架身份；原 PNG SHA-256 为 `A8CF5B5BD2FABAC44636C76E2CE46406BD08B8130F0853B8CADE0F51447A993B`。
-- `empty-states/no-task.svg`：复制自 `D:\Lyns\开发文件\光禾AI智能体框架-前端开发资源包\assets\empty-states\no-task.svg`，用于后端尚未提供任务数据时的真实空状态。
-- `login/product-main.webp`：由 `D:\Lyns\开发文件\光禾AI智能体框架-前端开发资源包\assets\demo-product\portable-coffee-maker-main.png` 转换，用于登录页品牌展示区的大尺寸商品主图。原图 SHA-256 为 `1A60EE028500A259B8E396539CFBB5BD1E556C40E19C920CAAA5A9C043E64DA0`；输出为 960×960 WebP，SHA-256 为 `B7E956B130E64680A3A18F1A1419CE908F71073697AC9166A93B3378E0AC9447`。
-- `login/home-kitchen.webp`：由 `D:\Lyns\开发文件\光禾AI智能体框架-前端开发资源包\assets\demo-product\scenes\home-kitchen.png` 转换，用于登录页商品图生成面板和 AI 生图结果卡。原图 SHA-256 为 `A688B5ECB98044E6DB8096344A7BC36F3C42C6D7372B12999D66A84A161378AA`；输出为 640×480 WebP，SHA-256 为 `A5FB61F79AB3A38503547A7303A26D6B6DB71EAD10A1F0A76AC27E6D34210832`。
-- `login/office-desk.webp`：由 `D:\Lyns\开发文件\光禾AI智能体框架-前端开发资源包\assets\demo-product\scenes\office-desk.png` 转换，用于登录页商品图生成面板和 AI 生图结果卡。原图 SHA-256 为 `6CD7DF99C0C28C687A85B2034BEAF2CB9D7E0871C13C0E0DA27AB903FEC29458`；输出为 640×480 WebP，SHA-256 为 `442A900505DAB5677DE21CA540A32463976774DAFBC7CBEF380030196D6486BC`。
-- `login/outdoor-camping.webp`：由 `D:\Lyns\开发文件\光禾AI智能体框架-前端开发资源包\assets\demo-product\scenes\outdoor-camping.png` 转换，用于登录页商品图生成面板和 AI 生图结果卡。原图 SHA-256 为 `3AA09C8D1740280512E518577D65CDD3A1925F670760D3C1B883A4896571C494`；输出为 640×480 WebP，SHA-256 为 `8FF4347AE175760C4A8733A01CE876B9262B183FC1582418F15B270CF85F9993`。
+- `brand/company-logo-ai-hd-white.png`：复制自 `原前端资源包 assets/brand/company-logo-ai-hd-white.png`。资源包说明其为负责人认可的第一阶段公司 Logo 高清白底版本；SHA-256 为 `C24F389245547AD04C9DDC6066B25AEE272501FE233CBAFE288D08E7EF545F75`。
+- `creative-mascot/creativeMascotAsset.ts`：内嵌自已审前端设计交付 `已审设计交付 agent-avatars/zhixiaohe-creative-pink-figma-128.png`，仅作为创作智能体在聊天空态和 assistant 消息中的粉色光禾AI智能体框架身份；原 PNG SHA-256 为 `A8CF5B5BD2FABAC44636C76E2CE46406BD08B8130F0853B8CADE0F51447A993B`。
+- `empty-states/no-task.svg`：复制自 `原前端资源包 assets/empty-states/no-task.svg`，用于后端尚未提供任务数据时的真实空状态。
+- `login/product-main.webp`：由 `原前端资源包 assets/demo-product/portable-coffee-maker-main.png` 转换，用于登录页品牌展示区的大尺寸商品主图。原图 SHA-256 为 `1A60EE028500A259B8E396539CFBB5BD1E556C40E19C920CAAA5A9C043E64DA0`；输出为 960×960 WebP，SHA-256 为 `B7E956B130E64680A3A18F1A1419CE908F71073697AC9166A93B3378E0AC9447`。
+- `login/home-kitchen.webp`：由 `原前端资源包 assets/demo-product/scenes/home-kitchen.png` 转换，用于登录页商品图生成面板和 AI 生图结果卡。原图 SHA-256 为 `A688B5ECB98044E6DB8096344A7BC36F3C42C6D7372B12999D66A84A161378AA`；输出为 640×480 WebP，SHA-256 为 `A5FB61F79AB3A38503547A7303A26D6B6DB71EAD10A1F0A76AC27E6D34210832`。
+- `login/office-desk.webp`：由 `原前端资源包 assets/demo-product/scenes/office-desk.png` 转换，用于登录页商品图生成面板和 AI 生图结果卡。原图 SHA-256 为 `6CD7DF99C0C28C687A85B2034BEAF2CB9D7E0871C13C0E0DA27AB903FEC29458`；输出为 640×480 WebP，SHA-256 为 `442A900505DAB5677DE21CA540A32463976774DAFBC7CBEF380030196D6486BC`。
+- `login/outdoor-camping.webp`：由 `原前端资源包 assets/demo-product/scenes/outdoor-camping.png` 转换，用于登录页商品图生成面板和 AI 生图结果卡。原图 SHA-256 为 `3AA09C8D1740280512E518577D65CDD3A1925F670760D3C1B883A4896571C494`；输出为 640×480 WebP，SHA-256 为 `8FF4347AE175760C4A8733A01CE876B9262B183FC1582418F15B270CF85F9993`。
 
 四张登录页图片仅作为 V1 品牌装饰，不代表当前用户或 Java 后端的真实业务数据。未复制其他演示商品、平台标识或后续业务空状态。Logo 不改色、不拉伸、不以 CSS 重画；独立对外再分发前需由负责人补充正式授权口径。
 

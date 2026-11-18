@@ -51,9 +51,10 @@ from app.security.internal_hmac import (
     sign_content,
 )
 
-TEST_HOST = "iv-yet96abbb4nu262av93s"
-PRIVATE_ROOT = Path("/opt/zhixiaohe/backups/geo-diagnostic-quality-1014-v9-r1/qa")
-JOB_ID = "103427869962665984"
+# Public placeholders only. Preserve the fixed-host and private-root safeguards.
+TEST_HOST = "example-isolated-qa-host"
+PRIVATE_ROOT = Path("/opt/guanghe-example/private/diagnostic-qa")
+JOB_ID = "100000000000000001"
 PATH = "/internal/v1/geo/diagnostic-analyses"
 ENDPOINT = "http://127.0.0.1:8000" + PATH
 REQUEST_FILE = "quality-analysis-request.json"
