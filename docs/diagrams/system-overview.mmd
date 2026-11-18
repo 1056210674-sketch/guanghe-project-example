@@ -1,0 +1,33 @@
+---
+title: 光禾AI智能体框架 · 三端系统架构
+---
+flowchart TB
+    User["用户 / 管理员"] --> Web["React Web · 业务工作台"]
+    subgraph Control["Java · 业务控制面"]
+        API["Browser API · /api/v1"]
+        Business["身份与项目归属 · 业务授权<br/>会话 / 任务 / 积分 / 审计"]
+        API --> Business
+    end
+    subgraph Intelligence["Python · 智能执行面"]
+        Agent["Agent API · 有界对话循环"]
+        Worker["独立 Workers · 长任务执行"]
+        Gateway["Model Gateway / Providers"]
+        Agent --> Gateway
+        Worker --> Gateway
+    end
+    Web -->|"Browser API / SSE"| API
+    Business -->|"签名 Internal API / SSE"| Agent
+    Agent -->|"授权 Context / 受控业务工具"| Business
+    Business -->|"任务投递"| MQ["RabbitMQ"]
+    MQ --> Worker
+    Worker -->|"Claim / 心跳 / 结果回报"| Business
+    Business --> DB[("PostgreSQL · 业务真相")]
+    Business --> Redis[("Redis · Nonce / 限流 / 缓存")]
+    Business --> Storage["对象存储 / 外部业务服务"]
+    Gateway --> Provider["文字模型 / 搜索 / 图片 / 视频"]
+    classDef entry fill:#fff1f0,stroke:#e53935,color:#801b18
+    classDef execution fill:#eef5ff,stroke:#5177b8,color:#213f70
+    classDef data fill:#f5f6f8,stroke:#9299a5,color:#303744
+    class User,Web,API,Business entry
+    class Agent,Worker,Gateway,Provider execution
+    class DB,Redis,MQ,Storage data

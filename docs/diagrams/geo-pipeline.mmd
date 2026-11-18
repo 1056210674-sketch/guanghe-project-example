@@ -1,0 +1,21 @@
+---
+title: 光禾AI智能体框架 · GEO 报告链路
+---
+flowchart TB
+    Brand["项目品牌资料与目标地域"] --> Prep["准备品牌问题、竞品与监测输入"]
+    Prep --> Review["用户核对 / 编辑资料"]
+    Review --> Entry["Java 准入与冻结输入<br/>执行授权 · 采样范围 · 预算"]
+    Entry --> Sample["Python GEO Worker<br/>按已授权问题与平台采样"]
+    Sample --> Evidence["真实回答 / 来源 / 稳定失败信息"]
+    Evidence --> Java["Java 验证并保存样本<br/>计算分类指标与证据范围"]
+    Java --> Analysis["Python 只读解读<br/>基于 Java 指标和实际回答 / 来源"]
+    Analysis --> Delivery["Java 报告与交付流程<br/>保存报告 · 导出 PDF · 对象存储"]
+    Delivery --> View["Web 查看报告、证据与附录"]
+    View --> Followup["用户追问 / 修订资料 / 发起后续工作"]
+    Followup -.-> Prep
+    classDef main fill:#fff1f0,stroke:#e53935,color:#801b18
+    classDef execution fill:#eef5ff,stroke:#5177b8,color:#213f70
+    classDef data fill:#f5f6f8,stroke:#9299a5,color:#303744
+    class Brand,Review,Entry,Java,Delivery,View main
+    class Prep,Sample,Analysis execution
+    class Evidence,Followup data

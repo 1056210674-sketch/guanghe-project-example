@@ -18,7 +18,7 @@
 [![Java](https://img.shields.io/badge/Java-21-E76F00?style=flat-square)](guanghe-bankend/pom.xml)
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python)](guanghe-agent/pyproject.toml)
 
-[快速开始](#快速开始) · [功能概览](#功能概览) · [系统架构](#系统架构) · [English](README.en.md) · [关于光禾AI](#关于光禾ai)
+[快速开始](#快速开始) · [功能概览](#功能概览) · [架构图册](docs/ARCHITECTURE.md) · [English](README.en.md) · [关于光禾AI](#关于光禾ai)
 
 </div>
 
@@ -65,21 +65,9 @@ Java 负责身份、数据归属、任务和积分；Python 负责模型、编�
 
 ## 系统架构
 
-```mermaid
-flowchart TB
-    U[用户 / 管理员] --> W[React Web]
-    W -->|Browser API /api/v1| J[Java 业务控制面]
-    J -->|业务数据读写| PG[(PostgreSQL)]
-    J --> R[(Redis)]
-    J -->|HMAC Internal API / SSE| A[Python Agent API]
-    A -->|受控工具调用 / 业务再验权| J
-    A --> G[统一模型网关 / Providers]
-    J --> Q[RabbitMQ]
-    Q --> WK[Python Workers]
-    WK --> G
-    WK -->|结果回报 / 任务状态校验| J
-    J --> OSS[对象存储 / 外部业务服务]
-```
+![光禾AI智能体框架：三端系统架构](docs/assets/diagrams/system-overview.svg)
+
+[查看高清 SVG](docs/assets/diagrams/system-overview.svg) · [Mermaid 源码](docs/diagrams/system-overview.mmd)
 
 ### 三端职责
 
@@ -99,6 +87,26 @@ flowchart TB
 - **异步任务闭环**：API 与 Worker 分离，业务状态、重试、结果验收和计费由既有任务流程约束。
 
 当前 Python 普通对话使用项目自有的原生 Agent Loop，不依赖 LangChain / LangGraph。
+
+## 核心流程图
+
+### 一次 AI 对话的执行时序
+
+从用户发送消息，到 Java 冻结授权上下文，再到 Python 循环调用模型与工具；进度和正文经 Java 流式返回浏览器。图中是逻辑交互顺序，具体连接与事件类型以接口契约为准。
+
+![光禾AI智能体框架：AI 对话与工具调用时序](docs/assets/diagrams/conversation-sequence.svg)
+
+[查看高清 SVG](docs/assets/diagrams/conversation-sequence.svg) · [Mermaid 源码](docs/diagrams/conversation-sequence.mmd)
+
+### 异步任务从准入到交付
+
+任务先经过 Java 业务准入，再由独立 Worker 执行。Worker 在取得有效 Claim 后确认队列消息，Java 继续负责业务状态、计费与领域交付；收到消息或采样完成都不自动等于成果就绪。
+
+![光禾AI智能体框架：异步任务执行流程](docs/assets/diagrams/task-flow.svg)
+
+[查看高清 SVG](docs/assets/diagrams/task-flow.svg) · [Mermaid 源码](docs/diagrams/task-flow.mmd)
+
+更多图解见 **[完整架构图册](docs/ARCHITECTURE.md)**：Agent 内部模块、Worker 执行时序、项目隔离、GEO 报告链路和新增智能体接入。
 
 ## 技术栈
 
@@ -269,7 +277,7 @@ cd guanghe-bankend
 | 文档 | 内容 |
 | --- | --- |
 | [完整启动指南](docs/QUICKSTART.md) | 本地模式、Java 联调、环境变量与验证 |
-| [架构导读](docs/ARCHITECTURE.md) | 服务职责、关键链路与源码入口 |
+| [架构图册](docs/ARCHITECTURE.md) | 系统架构、时序图、业务流程与源码入口 |
 | [公开版本说明](docs/PUBLIC-RELEASE.md) | 快照来源、品牌适配、兼容边界与验证记录 |
 | [贡献指南](CONTRIBUTING.md) | 问题反馈、开发规范与 PR 要求 |
 | [安全说明](SECURITY.md) | 漏洞反馈与敏感配置管理 |

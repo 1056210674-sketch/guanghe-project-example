@@ -1,0 +1,34 @@
+---
+title: 光禾AI智能体框架 · 对话执行时序
+---
+sequenceDiagram
+    autonumber
+    actor User as 用户
+    participant Web as React Web
+    participant Java as Java 业务控制面
+    participant DB as PostgreSQL
+    participant Agent as Python Agent
+    participant Model as 模型网关
+    User->>Web: 选择智能体与项目，发送消息
+    Web->>Java: 提交消息 / 订阅会话事件
+    Java->>Java: 身份、归属与运行预算校验
+    Java->>DB: 保存消息，冻结 Run 与授权上下文
+    Java->>Agent: 签名请求，启动本轮执行
+    Agent->>Java: 获取本 Run 授权 Context
+    Java-->>Agent: 项目资料 / 能力与工具范围
+    loop 在工具、轮次和时间预算内
+        Agent->>Model: 提供上下文与允许的工具
+        Model-->>Agent: 回复增量或工具请求
+        opt 需要调用业务工具
+            Agent->>Java: 提交受控工具请求
+            Java->>Java: 再次校验归属与业务权限
+            Java-->>Agent: 返回已授权的结果或稳定错误
+        end
+        Agent-->>Java: SSE · 进度 / 正文增量
+        Java-->>Web: 转发对外事件
+        Web-->>User: 展示真实进度和流式正文
+    end
+    Agent-->>Java: Run 完成 / 失败 / 停止
+    Java->>DB: 保存 Run 终态与消息快照
+    Java-->>Web: 对外终态与可恢复快照
+    Note over Java,Agent: 工具提议不等于正式任务，业务写入与执行准入仍由 Java 决定

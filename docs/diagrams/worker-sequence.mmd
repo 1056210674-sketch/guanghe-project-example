@@ -1,0 +1,36 @@
+---
+title: 光禾AI智能体框架 · Worker 执行时序
+---
+sequenceDiagram
+    autonumber
+    participant Java as Java 任务控制面
+    participant DB as PostgreSQL
+    participant MQ as RabbitMQ
+    participant Worker as Python Worker
+    participant Provider as Provider
+    Java->>DB: 事务保存任务与投递记录
+    Java->>MQ: 投递任务执行消息
+    MQ->>Worker: 手动确认模式交付消息
+    Worker->>Java: Claim：申请本次执行权
+    Java->>DB: 校验任务状态并原子获取执行租约
+    alt 成功取得 Claim
+        Java-->>Worker: executionNo / 执行凭据 / 租约
+        Worker->>MQ: ACK 消息
+        Worker->>Java: 读取冻结执行 Context
+        Java-->>Worker: 参数、素材和执行预算
+        loop 在租约、期限和重试预算内
+            Worker->>Java: 心跳 / 执行进度
+            Worker->>Provider: 发起或恢复领域任务
+            Provider-->>Worker: 领域结果 / 继续等待 / 稳定错误
+        end
+        Worker->>Java: 使用执行凭据回报结果
+        Java->>DB: 校验并保存结果、状态与结算事实
+        Note over Java,Worker: 部分领域另有交付阶段；采样结束不等于报告或 PDF 就绪
+    else 重复消息或任务已终态
+        Java-->>Worker: DUPLICATE / TERMINAL
+        Worker->>MQ: ACK，跳过供应商执行
+    else 控制面暂不可用
+        Java-->>Worker: 稳定不可用错误
+        Worker->>MQ: NACK，允许重新投递
+    end
+    Note over Java,Worker: 租约丢失或执行凭据过期时，旧 Worker 不能覆盖新执行结果

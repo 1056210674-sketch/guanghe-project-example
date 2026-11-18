@@ -1,0 +1,23 @@
+---
+title: 光禾AI智能体框架 · 账号与项目隔离
+---
+flowchart TB
+    Account["登录账号 · 数据所有权边界"] --> Shared["账号级表达偏好<br/>仅限明确适用于全部项目的内容"]
+    Account --> A["客户项目 A"]
+    Account --> B["客户项目 B"]
+    A --> AData["品牌事实 / 知识资料<br/>会话 / 记忆 / 报告 / 资产"]
+    B --> BData["品牌事实 / 知识资料<br/>会话 / 记忆 / 报告 / 资产"]
+    AData --> Gate["Java 校验当前账号与项目归属"]
+    Shared --> Gate
+    Gate --> Snapshot["冻结授权快照<br/>身份 / 项目 / 能力"]
+    Snapshot --> Python["Python 按 Run 获取 Context"]
+    Python --> Tools["工具执行范围<br/>冻结能力与当前有效授权的交集"]
+    Tools --> Recheck["业务读写返回 Java 再次校验"]
+    Recheck --> AData
+    BData -.->|"不进入项目 A 的授权快照"| Boundary["项目隔离边界"]
+    classDef owner fill:#fff1f0,stroke:#e53935,color:#801b18
+    classDef project fill:#eef5ff,stroke:#5177b8,color:#213f70
+    classDef neutral fill:#f5f6f8,stroke:#9299a5,color:#303744
+    class Account,Gate,Snapshot,Recheck owner
+    class A,AData,Python,Tools project
+    class B,BData,Shared,Boundary neutral

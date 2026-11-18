@@ -1,0 +1,32 @@
+---
+title: 光禾AI智能体框架 · 异步任务流程
+---
+flowchart LR
+    subgraph Admission["01 · Java 业务准入"]
+        direction TB
+        Request["用户请求 / 任务草稿"] --> Check["归属 · 参数 · 执行授权<br/>预算 · 幂等校验"]
+        Check --> Allowed{"满足准入条件？"}
+        Allowed -->|"否"| Clarify["补充信息 / 按需确认<br/>或返回业务错误"]
+        Allowed -->|"是"| Persist["事务保存任务与计费<br/>持久化投递记录"]
+    end
+    subgraph Execution["02 · Python 独立执行"]
+        direction TB
+        Claim["向 Java 申请有效 Claim"] --> Ack["成功后 ACK 消息<br/>读取冻结执行 Context"]
+        Ack --> Execute["调用领域 Provider<br/>心跳续租 · 有限重试"]
+        Execute --> Report["使用执行凭据<br/>回报结果 / 稳定失败信息"]
+    end
+    subgraph Delivery["03 · Java 验收与交付"]
+        direction TB
+        Verify["校验执行凭据与领域结果"] --> Finish["保存业务状态<br/>处理积分结算"]
+        Finish --> Output["领域后续交付<br/>报告 / PDF / 媒体成果等"]
+        Output --> View["Web 展示任务状态<br/>与实际可用成果"]
+    end
+    Admission -->|"准入成功后"| Queue["RabbitMQ"]
+    Queue --> Execution
+    Execution --> Delivery
+    classDef main fill:#fff1f0,stroke:#e53935,color:#801b18
+    classDef execution fill:#eef5ff,stroke:#5177b8,color:#213f70
+    classDef neutral fill:#f5f6f8,stroke:#9299a5,color:#303744
+    class Request,Check,Persist,Verify,Finish,Output,View main
+    class Claim,Ack,Execute,Report execution
+    class Clarify,Queue neutral

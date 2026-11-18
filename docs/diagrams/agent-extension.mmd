@@ -1,0 +1,15 @@
+---
+title: 光禾AI智能体框架 · 新增智能体接入
+---
+flowchart TB
+    Need["定义新增智能体的业务场景"] --> Reuse["检查行为 / 工具<br/>核对 Provider<br/>组合已有能力"]
+    Reuse --> Config["定义 Prompt / Profile<br/>注册受控运行清单"]
+    Config --> Permission["声明能力上限<br/>设置工具白名单<br/>核对 Java 授权"]
+    Permission --> Sync["同步 Java 清单镜像<br/>版本 / 哈希 / 相关契约"]
+    Sync --> Verify["确定性测试与跨端契约检查"]
+    Verify --> UI["Java 目录与能力<br/>复用安装与会话<br/>复用成果入口"]
+    UI --> Release["按环境验证发布<br/>核对执行版本<br/>核对清单哈希"]
+    classDef main fill:#fff1f0,stroke:#e53935,color:#801b18
+    classDef execution fill:#eef5ff,stroke:#5177b8,color:#213f70
+    class Need,Permission,UI,Release main
+    class Reuse,Config,Sync,Verify execution

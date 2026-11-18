@@ -1,0 +1,24 @@
+---
+title: 光禾AI智能体框架 · Agent 内部模块
+---
+flowchart TB
+    Input["Java 授权的 Run"] --> Manager["Run Manager<br/>运行隔离 / 生命周期"]
+    Catalog["Runtime Catalog<br/>身份 / 执行发布 / 能力白名单"] --> Manager
+    Bundle["版本化 Prompt Bundle<br/>只读加载 / 内容哈希"] --> Loop
+    Manager --> Loop["Native Agent Loop<br/>观察 → 决策 → 工具 → 回复"]
+    Loop --> Harness["Runtime Harness<br/>轮次 / 工具数 / 时间 / 用量预算"]
+    Harness --> Gateway["统一文字模型 Gateway"]
+    Gateway --> Model["受配置约束<br/>模型适配器"]
+    Model --> Loop
+    Harness --> Tools["工具注册 / Policy / Executor"]
+    Tools --> Client["Java Internal Client<br/>HMAC / Nonce / Trace"]
+    Client --> Java["Java 再次业务验权<br/>资料 / 记忆 / 草稿 / 任务准入"]
+    Java --> Loop
+    Loop --> Events["受控 SSE 事件<br/>进度 / 正文 / 终态"]
+    Events --> Relay["Java 对外转发 → Web"]
+    classDef main fill:#fff1f0,stroke:#e53935,color:#801b18
+    classDef execution fill:#eef5ff,stroke:#5177b8,color:#213f70
+    classDef resource fill:#f5f6f8,stroke:#9299a5,color:#303744
+    class Input,Client,Java,Relay main
+    class Manager,Loop,Harness,Gateway,Model,Tools,Events execution
+    class Catalog,Bundle resource

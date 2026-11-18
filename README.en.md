@@ -33,19 +33,17 @@ Some capabilities require provider credentials and explicit execution settings. 
 
 ## Architecture
 
-```text
-React Web → Java Browser API → Python Agent API → Model Gateway / Providers
-                    ↓                  ↓
-               PostgreSQL       Authorized tools → Java
-                    ↓
-                RabbitMQ → Python Workers → Results → Java
-```
+![Guanghe AI Agent Framework — system architecture](docs/assets/diagrams/system-overview.svg)
+
+[查看高清 SVG](docs/assets/diagrams/system-overview.svg) · [Mermaid 源码](docs/diagrams/system-overview.mmd)
 
 - **Java owns business truth:** identity, authorization, project ownership, tasks, points, confirmations and database writes.
 - **Python owns intelligent execution:** bounded loops, tool selection, provider adapters and long-running workers.
 - **Web calls Java only:** Python and internal APIs are not browser endpoints.
 - **Contracts are versioned:** OpenAPI, SSE, RabbitMQ schemas and runtime catalogs are included.
 - **The native agent loop is implemented in this project:** ordinary conversations do not depend on LangChain or LangGraph.
+
+**Diagram atlas:** [conversation sequence and task flow](README.md#核心流程图), [Agent runtime, worker sequence, data isolation and GEO pipeline](docs/ARCHITECTURE.md). Each figure includes an SVG export and editable Mermaid source.
 
 ## Stack and layout
 
