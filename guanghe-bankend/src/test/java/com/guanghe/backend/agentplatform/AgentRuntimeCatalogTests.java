@@ -17,8 +17,8 @@ class AgentRuntimeCatalogTests {
         var windows = new AgentRuntimeCatalog(new String(bytes, StandardCharsets.UTF_8).replace("\r\n", "\n")
                 .replace("\n", "\r\n").getBytes(StandardCharsets.UTF_8));
         assertThat(windows.catalogHash()).isEqualTo(catalog.catalogHash());
-        assertThat(catalog.acceptedArticlePromptVersions()).contains("agent-bundle-v1.48.3", "agent-bundle-v1.49.0", "agent-bundle-v1.50.0", "agent-bundle-v1.51.0", "agent-bundle-v1.52.0", "agent-bundle-v1.53.0", "agent-bundle-v1.54.0", "agent-bundle-v1.59.0", "agent-bundle-v1.60.0", "agent-bundle-v1.61.0", "agent-bundle-v1.62.1")
-                .doesNotContain("agent-bundle-v1.48.4", "agent-bundle-v1.50.1", "agent-bundle-v1.51.1", "agent-bundle-v1.53.1", "agent-bundle-v1.54.1", "agent-bundle-v1.59.1", "agent-bundle-v1.60.1", "agent-bundle-v1.61.1", "agent-bundle-v1.62.1", "anything");
+        assertThat(catalog.acceptedArticlePromptVersions()).contains("agent-bundle-v1.48.3", "agent-bundle-v1.49.0", "agent-bundle-v1.50.0", "agent-bundle-v1.51.0", "agent-bundle-v1.52.0", "agent-bundle-v1.53.0", "agent-bundle-v1.54.0", "agent-bundle-v1.59.0", "agent-bundle-v1.60.0", "agent-bundle-v1.61.0", "agent-bundle-v1.62.0", "agent-bundle-v1.62.1")
+                .doesNotContain("agent-bundle-v1.48.4", "agent-bundle-v1.50.1", "agent-bundle-v1.51.1", "agent-bundle-v1.53.1", "agent-bundle-v1.54.1", "agent-bundle-v1.59.1", "agent-bundle-v1.60.1", "agent-bundle-v1.61.1", "agent-bundle-v1.62.2", "anything");
     }
 
     @Test void fourthAgentReusesNativeAdapterAndCannotTurnReadPermissionIntoMemoryWrites() throws Exception {
