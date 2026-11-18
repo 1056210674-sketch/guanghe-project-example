@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>光禾 Agent 开发控制台</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17221d;
+      --muted: #647068;
+      --paper: #f5f3ec;
+      --panel: rgba(255, 255, 252, .86);
+      --line: #d8ddd4;
+      --green: #1d6b4f;
+      --green-soft: #dcece3;
+      --amber: #a86119;
+      --amber-soft: #fff0d2;
+      --red: #a13f38;
+      --shadow: 0 24px 70px rgba(23, 50, 38, .11);
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 5%, rgba(255, 220, 149, .32), transparent 25rem),
+        radial-gradient(circle at 90% 20%, rgba(76, 149, 111, .18), transparent 30rem),
+        var(--paper);
+      font-family: Inter, "Microsoft YaHei", system-ui, sans-serif;
+    }
+    .shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 30px 0 48px; }
+    header { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 22px; }
+    .eyebrow { margin: 0 0 7px; color: var(--green); font-size: 12px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
+    h1 { margin: 0; font-family: Georgia, "STSong", serif; font-size: clamp(30px, 4vw, 48px); font-weight: 600; letter-spacing: -.03em; }
+    .subtitle { max-width: 700px; margin: 9px 0 0; color: var(--muted); line-height: 1.75; }
+    .subtitle a { color: var(--green); font-weight: 700; }
+    .service-state { display: flex; align-items: center; gap: 8px; padding: 10px 13px; border: 1px solid var(--line); border-radius: 99px; background: var(--panel); white-space: nowrap; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: #9ca39e; box-shadow: 0 0 0 4px rgba(156, 163, 158, .14); }
+    .dot.ready { background: #2c9a6d; box-shadow: 0 0 0 4px rgba(44, 154, 109, .14); }
+    .dot.error { background: var(--red); }
+    .grid { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(330px, .88fr); gap: 18px; }
+    .panel { border: 1px solid rgba(207, 215, 205, .9); border-radius: 20px; background: var(--panel); box-shadow: var(--shadow); backdrop-filter: blur(12px); }
+    .workbench { padding: 24px; }
+    .panel h2 { margin: 0 0 6px; font-size: 17px; }
+    .hint { margin: 0 0 18px; color: var(--muted); font-size: 13px; line-height: 1.65; }
+    .examples { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
+    button { font: inherit; }
+    .chip { padding: 7px 11px; border: 1px solid var(--line); border-radius: 99px; color: #3e4c44; background: #fff; cursor: pointer; font-size: 12px; transition: .16s ease; }
+    .chip:hover { border-color: #91b5a4; transform: translateY(-1px); }
+    label { display: block; margin: 0 0 7px; color: #455149; font-size: 12px; font-weight: 700; }
+    textarea, input { width: 100%; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); background: rgba(255,255,255,.92); outline: none; font: inherit; }
+    textarea { min-height: 132px; padding: 14px; resize: vertical; line-height: 1.65; }
+    input { height: 42px; padding: 0 12px; }
+    textarea:focus, input:focus { border-color: #65a387; box-shadow: 0 0 0 3px rgba(62, 137, 103, .12); }
+    .context-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 13px; }
+    .actions { display: flex; gap: 10px; align-items: center; margin-top: 16px; }
+    .primary, .secondary { min-height: 43px; padding: 0 18px; border-radius: 11px; cursor: pointer; font-weight: 750; }
+    .primary { border: 1px solid var(--green); color: white; background: var(--green); box-shadow: 0 8px 20px rgba(29,107,79,.2); }
+    .primary:hover { background: #165d44; }
+    .primary:disabled, .secondary:disabled { opacity: .45; cursor: not-allowed; }
+    .secondary { border: 1px solid var(--line); color: var(--red); background: white; }
+    .run-meta { margin-left: auto; color: var(--muted); font: 11px ui-monospace, monospace; }
+    .result { margin-top: 20px; min-height: 190px; padding: 18px; border-radius: 15px; background: #f2f5ef; border: 1px solid #dbe2d8; }
+    .empty { display: grid; min-height: 150px; place-items: center; color: #8a948d; text-align: center; font-size: 13px; }
+    .answer { white-space: pre-wrap; font-size: 15px; line-height: 1.8; }
+    .outcome-card { margin-top: 14px; padding: 14px; border-radius: 12px; border: 1px solid #ebd299; background: var(--amber-soft); }
+    .outcome-card.draft { border-color: #a9ceb9; background: var(--green-soft); }
+    .outcome-title { margin: 0 0 8px; color: var(--amber); font-weight: 800; font-size: 13px; }
+    .outcome-card.draft .outcome-title { color: var(--green); }
+    pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font: 12px/1.65 ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .side { display: grid; gap: 18px; align-content: start; }
+    .status-panel, .event-panel { padding: 20px; }
+    .badges { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 13px; }
+    .badge { padding: 6px 9px; border-radius: 7px; color: #355145; background: #edf2ec; font-size: 11px; font-weight: 700; }
+    .provider-list { display: grid; gap: 8px; margin-top: 15px; }
+    .gateway { margin-top: 14px; padding: 12px; border: 1px solid #d8e4dc; border-radius: 12px; background: #f4f8f4; }
+    .gateway strong { display: block; margin-bottom: 5px; color: var(--green); font-size: 12px; }
+    .gateway span { color: var(--muted); font: 11px/1.55 ui-monospace, monospace; }
+    .provider { display: flex; justify-content: space-between; padding-top: 8px; border-top: 1px solid #e3e6e0; font-size: 12px; }
+    .provider span:last-child { color: var(--muted); }
+    .event-head { display: flex; justify-content: space-between; align-items: center; }
+    .event-count { color: var(--muted); font-size: 12px; }
+    .timeline { max-height: 435px; overflow: auto; margin-top: 13px; padding-right: 5px; }
+    .event { position: relative; margin-left: 5px; padding: 0 0 14px 20px; border-left: 1px solid #d8ddd7; }
+    .event:last-child { padding-bottom: 0; }
+    .event::before { content: ""; position: absolute; left: -5px; top: 4px; width: 9px; height: 9px; border: 2px solid white; border-radius: 50%; background: #7a9185; }
+    .event-name { font: 700 11px ui-monospace, monospace; }
+    .event-seq { float: right; color: #8e9891; font-size: 10px; }
+    .event-data { margin-top: 5px; color: var(--muted); font: 10px/1.5 ui-monospace, monospace; overflow-wrap: anywhere; }
+    .notice { margin-top: 18px; padding: 12px 14px; border-left: 3px solid var(--amber); color: #765123; background: rgba(255,240,210,.65); font-size: 12px; line-height: 1.65; }
+    @media (max-width: 820px) {
+      header { flex-direction: column; }
+      .grid { grid-template-columns: 1fr; }
+      .context-row { grid-template-columns: 1fr; }
+      .run-meta { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <p class="eyebrow">Guanghe · Local Runtime</p>
+        <h1>Agent 开发控制台</h1>
+        <p class="subtitle">观察受限 Agent 如何识别意图、提出澄清问题或生成任务草稿建议。所有运行数据仅保存在当前 Python 进程内。<a href="http://127.0.0.1:8010/dev/worker">打开独立 Worker 控制台</a></p>
+      </div>
+      <div class="service-state" aria-live="polite">
+        <span class="dot" id="serviceDot"></span>
+        <span id="serviceText">正在检查服务</span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="panel workbench">
+        <h2>运行一次对话</h2>
+        <p class="hint">示例覆盖普通回答、信息补充和草稿建议三条核心路径。每次提交都是独立 Run，不继承上一次的工具或意图。</p>
+        <div class="examples" id="examples">
+          <button class="chip" data-example="hello">普通问答</button>
+          <button class="chip" data-example="missing-image">信息不足的生图</button>
+          <button class="chip" data-example="ready-image">参数齐全的生图</button>
+          <button class="chip" data-example="video">视频草稿</button>
+          <button class="chip" data-example="geo">GEO 子图</button>
+          <button class="chip" data-example="article">文章子图</button>
+          <button class="chip" data-example="confirm">模糊确认</button>
+        </div>
+
+        <label for="message">用户消息</label>
+        <textarea id="message" placeholder="例如：为这个商品制作厨房台面使用场景主图，暖色自然光，1:1"></textarea>
+        <div class="context-row">
+          <div>
+            <label for="spaceId">授权经营空间 ID（可选）</label>
+            <input id="spaceId" placeholder="例如 local-space-001">
+          </div>
+          <div>
+            <label for="productId">授权商品 ID（可选）</label>
+            <input id="productId" placeholder="例如 local-product-001">
+          </div>
+        </div>
+        <div class="actions">
+          <button class="primary" id="runButton">启动 Agent Run</button>
+          <button class="secondary" id="stopButton" disabled>停止当前 Run</button>
+          <span class="run-meta" id="runMeta">尚未运行</span>
+        </div>
+
+        <div class="result" id="result">
+          <div class="empty" id="emptyState">选择一个示例或输入消息，结果会通过 SSE 实时显示在这里。</div>
+          <div class="answer" id="answer" hidden></div>
+          <div class="outcome-card" id="outcome" hidden>
+            <div class="outcome-title" id="outcomeTitle"></div>
+            <pre id="outcomeBody"></pre>
+          </div>
+        </div>
+        <div class="notice" id="boundaryNotice">边界说明：本页不会扣积分、发布内容、删除数据或创建正式任务。任务草稿必须由 Java 再次校验后才能进入业务流程。</div>
+      </section>
+
+      <aside class="side">
+        <section class="panel status-panel">
+          <h2>运行时能力</h2>
+          <p class="hint" id="bundleInfo">正在读取 Prompt Bundle 与 Provider 状态…</p>
+          <div class="gateway" id="gatewayInfo">
+            <strong>模型网关</strong>
+            <span>正在检查实际执行模式…</span>
+          </div>
+          <div class="badges" id="profileBadges"></div>
+          <div class="provider-list" id="providerList"></div>
+        </section>
+        <section class="panel event-panel">
+          <div class="event-head">
+            <h2>SSE 事件</h2>
+            <span class="event-count" id="eventCount">0 个事件</span>
+          </div>
+          <p class="hint">这里只展示稳定公共事件，不暴露内部工具上下文。</p>
+          <div class="timeline" id="timeline">
+            <div class="empty">等待 Run 启动</div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const eventNames = ["run.started", "run.progress", "message.delta", "interaction.required", "task-draft.proposed", "usage.reported", "run.completed", "run.failed", "heartbeat"];
+    let source = null;
+    let activeRunId = null;
+    let eventsSeen = 0;
+
+    const examples = {
+      hello: { content: "你好，介绍一下你现在能做什么", space: "", product: "" },
+      "missing-image": { content: "帮我生成商品主图", space: "", product: "" },
+      "ready-image": { content: "为这个商品制作厨房台面使用场景主图，暖色自然光，1:1", space: "local-space-001", product: "local-product-001" },
+      video: { content: "为这个商品制作一段 5 秒的夏日户外展示视频", space: "local-space-001", product: "local-product-001" },
+      geo: { content: "分析咖啡机在问答平台的搜索关键词和用户问题", space: "local-space-001", product: "" },
+      article: { content: "写一篇 1200 字的咖啡机选购指南，语气专业", space: "local-space-001", product: "local-product-001" },
+      confirm: { content: "确认", space: "local-space-001", product: "local-product-001" }
+    };
+
+    document.querySelectorAll("[data-example]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const example = examples[button.dataset.example];
+        $("message").value = example.content;
+        $("spaceId").value = example.space;
+        $("productId").value = example.product;
+        $("message").focus();
+      });
+    });
+
+    function setService(ok, text) {
+      $("serviceText").textContent = text;
+      $("serviceDot").className = `dot ${ok ? "ready" : "error"}`;
+    }
+
+    async function loadCapabilities() {
+      try {
+        const [readyResponse, capabilityResponse] = await Promise.all([
+          fetch("/internal/v1/health/ready"),
+          fetch("/internal/v1/capabilities")
+        ]);
+        if (!capabilityResponse.ok) throw new Error("capabilities unavailable");
+        const capability = await capabilityResponse.json();
+        setService(readyResponse.ok, readyResponse.ok ? "Agent Runtime READY" : "Agent Runtime NOT READY");
+        $("bundleInfo").textContent = `Bundle ${capability.bundleVersion} · ${capability.bundleHash.slice(0, 10)}…`;
+        const gateway = capability.modelGateway;
+        $("gatewayInfo").replaceChildren();
+        const gatewayTitle = document.createElement("strong");
+        const gatewayDetail = document.createElement("span");
+        gatewayTitle.textContent = gateway.mode === "REAL" ? "真实模型网关" : gateway.mode === "MOCK" ? "本地模拟网关" : "模型网关不可用";
+        gatewayDetail.textContent = `${gateway.provider || "未选择"} / ${gateway.model || "未配置"} · ${gateway.status}${gateway.reasonCode ? ` · ${gateway.reasonCode}` : ""}`;
+        $("gatewayInfo").append(gatewayTitle, gatewayDetail);
+        $("boundaryNotice").textContent = gateway.mode === "REAL"
+          ? "当前普通问答和意图识别会调用真实模型，可能产生模型用量；不会扣业务积分、发布内容、删除数据或创建正式任务。任务草稿仍须由 Java 再次校验。"
+          : "当前使用本地模拟模型；不会扣业务积分、发布内容、删除数据或创建正式任务。任务草稿仍须由 Java 再次校验。";
+        const badgeRoot = $("profileBadges");
+        capability.supportedProfiles.flatMap((profile) => profile.taskTypes).forEach((type) => {
+          const badge = document.createElement("span");
+          badge.className = "badge";
+          badge.textContent = type;
+          badgeRoot.appendChild(badge);
+        });
+        capability.providers.forEach((provider) => {
+          const row = document.createElement("div");
+          row.className = "provider";
+          const code = document.createElement("span");
+          const providerStatus = document.createElement("span");
+          code.textContent = provider.code;
+          providerStatus.textContent = `${provider.status}${provider.model ? ` · ${provider.model}` : ""}`;
+          row.append(code, providerStatus);
+          $("providerList").appendChild(row);
+        });
+      } catch (error) {
+        setService(false, "Agent Runtime NOT READY");
+        $("bundleInfo").textContent = "无法读取运行时能力，请检查服务日志。";
+      }
+    }
+
+    function resetRun() {
+      if (source) source.close();
+      source = null;
+      activeRunId = null;
+      eventsSeen = 0;
+      $("timeline").replaceChildren();
+      $("eventCount").textContent = "0 个事件";
+      $("emptyState").hidden = true;
+      $("answer").hidden = false;
+      $("answer").textContent = "";
+      $("outcome").hidden = true;
+      $("outcome").className = "outcome-card";
+      $("outcomeBody").textContent = "";
+    }
+
+    function addEvent(eventName, payload) {
+      eventsSeen += 1;
+      $("eventCount").textContent = `${eventsSeen} 个事件`;
+      const item = document.createElement("div");
+      item.className = "event";
+      const name = document.createElement("span");
+      name.className = "event-name";
+      name.textContent = eventName;
+      const sequence = document.createElement("span");
+      sequence.className = "event-seq";
+      sequence.textContent = `#${payload.sequence}`;
+      const detail = document.createElement("div");
+      detail.className = "event-data";
+      detail.textContent = JSON.stringify(payload.payload);
+      item.append(name, sequence, detail);
+      $("timeline").appendChild(item);
+      item.scrollIntoView({ block: "nearest" });
+    }
+
+    function showOutcome(title, payload, isDraft = false) {
+      $("outcome").hidden = false;
+      $("outcome").className = isDraft ? "outcome-card draft" : "outcome-card";
+      $("outcomeTitle").textContent = title;
+      $("outcomeBody").textContent = JSON.stringify(payload, null, 2);
+    }
+
+    function finish(status) {
+      $("runButton").disabled = false;
+      $("stopButton").disabled = true;
+      $("runMeta").textContent = activeRunId ? `${status} · ${activeRunId.slice(0, 8)}` : status;
+      if (source) source.close();
+      source = null;
+    }
+
+    function connectEvents(eventsUrl) {
+      source = new EventSource(eventsUrl);
+      eventNames.forEach((eventName) => {
+        source.addEventListener(eventName, (event) => {
+          const data = JSON.parse(event.data);
+          addEvent(eventName, data);
+          if (eventName === "message.delta") $("answer").textContent += data.payload.delta;
+          if (eventName === "run.started") {
+            const mode = data.payload.mockMode ? "MOCK" : "REAL";
+            $("runMeta").textContent = `${mode} · ${data.payload.modelVersion}`;
+          }
+          if (eventName === "interaction.required") showOutcome("需要补充信息", data.payload);
+          if (eventName === "task-draft.proposed") showOutcome("任务草稿建议（非正式任务）", data.payload, true);
+          if (eventName === "usage.reported") {
+            const usage = data.payload;
+            $("runMeta").textContent = `${usage.provider || "LOCAL"} · 输入 ${usage.providerInputTokens || 0} / 输出 ${usage.providerOutputTokens || 0} tokens`;
+          }
+          if (eventName === "run.completed") finish(data.payload.status);
+          if (eventName === "run.failed") {
+            showOutcome("Run 执行失败", data.payload);
+            finish("FAILED");
+          }
+        });
+      });
+      source.onerror = () => {
+        if (source && source.readyState === EventSource.CLOSED) finish("连接已关闭");
+      };
+    }
+
+    $("runButton").addEventListener("click", async () => {
+      const content = $("message").value.trim();
+      if (!content) {
+        $("message").focus();
+        return;
+      }
+      resetRun();
+      $("runButton").disabled = true;
+      $("stopButton").disabled = false;
+      $("runMeta").textContent = "正在创建 Run…";
+      try {
+        const response = await fetch("/dev/v1/runs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            content,
+            selectedSpaceId: $("spaceId").value.trim() || null,
+            selectedProductId: $("productId").value.trim() || null
+          })
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(JSON.stringify(result));
+        activeRunId = result.runId;
+        $("runMeta").textContent = `RUNNING · ${activeRunId.slice(0, 8)}`;
+        connectEvents(result.eventsUrl);
+      } catch (error) {
+        showOutcome("无法启动 Run", { message: String(error) });
+        finish("FAILED");
+      }
+    });
+
+    $("stopButton").addEventListener("click", async () => {
+      if (!activeRunId) return;
+      $("stopButton").disabled = true;
+      await fetch(`/internal/v1/chat-runs/${activeRunId}/stop`, { method: "POST" });
+    });
+
+    loadCapabilities();
+  </script>
+</body>
+</html>

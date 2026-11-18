@@ -1,0 +1,32 @@
+# Copy this file outside Git as application-local.yaml only when local overrides are needed.
+# Database credentials must still be injected through environment variables.
+spring:
+  config:
+    activate:
+      on-profile: local
+  flyway:
+    enabled: ${SPRING_FLYWAY_ENABLED:false}
+
+# Ordinary development database variables:
+# APP_DB_URL, APP_DB_USERNAME, APP_DB_PASSWORD.
+# FLYWAY_DB_URL, FLYWAY_DB_USERNAME and FLYWAY_DB_PASSWORD are required only when
+# SPRING_FLYWAY_ENABLED=true and must use the separately issued migration role.
+# Authentication variables:
+# JWT_SECRET_BASE64 is required and must decode to at least 32 random bytes.
+# JWT_ISSUER, JWT_ACCESS_TOKEN_TTL_SECONDS, LOGIN_MAX_FAILURES and
+# LOGIN_FAILURE_WINDOW_SECONDS are optional overrides. Never store the JWT secret in Git.
+# Remote middleware variables:
+# REDIS_HOST, REDIS_PORT, REDIS_USERNAME, REDIS_PASSWORD, REDIS_SSL_ENABLED, REDIS_KEY_PREFIX,
+# RABBITMQ_HOST, RABBITMQ_PORT, RABBITMQ_VHOST, RABBITMQ_USERNAME, RABBITMQ_PASSWORD,
+# RABBITMQ_SSL_ENABLED. Public development connections must keep both SSL flags enabled.
+# OpenTelemetry variables (optional and disabled by default): OTEL_TRACING_ENABLED,
+# OTEL_TRACING_SAMPLING_PROBABILITY, OTEL_EXPORTER_OTLP_TRACES_ENDPOINT,
+# OTEL_EXPORTER_CONNECT_TIMEOUT, OTEL_EXPORTER_TIMEOUT, OTEL_SERVICE_NAME and APP_GIT_COMMIT.
+# Do not point a developer profile at a public collector; the test deployment uses loopback OTLP.
+# Other application variables:
+# SNOWFLAKE_WORKER_ID, REGISTRATION_TERMS_VERSION and REGISTRATION_PRIVACY_VERSION.
+# Media procurement variables (only when the media capability is explicitly enabled):
+# MEDIA_ENABLED, MEDIA_SUBMISSION_EXECUTION_ENABLED, MEDIA_RESOURCE_SYNC_ENABLED,
+# MEDIA_ORDER_POLL_ENABLED, MEDIA_API_BASE_URL, MEDIA_API_APP_KEY, MEDIA_PROVIDER_CODE,
+# MEDIA_SUPPORTED_MODEL_IDS and MEDIA_* timeout/poll bounds. Keep the execution toggle false
+# unless a side-effect-safe upstream environment has been approved. Never store the app key in Git.

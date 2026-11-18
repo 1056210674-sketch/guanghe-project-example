@@ -1,0 +1,125 @@
+.geo-diagnostic-report--consulting {
+  --diagnostic-ink: #173239;
+  --diagnostic-teal: #087f83;
+  --diagnostic-tint: #eaf5f3;
+  --diagnostic-orange: #b95b1f;
+  --diagnostic-paper: #f4f6f6;
+  max-width: 1260px;
+  gap: 24px;
+  padding: 24px;
+  background: var(--diagnostic-paper);
+  color: var(--diagnostic-ink);
+  border-radius: 16px;
+  font-size: 15px;
+  line-height: 1.75;
+}
+.geo-diagnostic-report--consulting h1,
+.geo-diagnostic-report--consulting h2,
+.geo-diagnostic-report--consulting h3,
+.geo-diagnostic-report--consulting p { margin: 0; overflow-wrap: anywhere; }
+.geo-diagnostic-report--consulting h3 { font-size: 19px; font-weight: 650; line-height: 1.5; }
+.geo-diagnostic-report--consulting a { color: var(--diagnostic-teal); text-underline-offset: 3px; overflow-wrap: anywhere; }
+.geo-diagnostic-report--consulting a:hover { text-decoration: underline; }
+.geo-diagnostic-report__cover { display: grid; gap: 24px; padding: clamp(24px, 4vw, 48px); background: #fff; border-top: 8px solid var(--diagnostic-teal); }
+.geo-diagnostic-report__eyebrow { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 13px; color: #5d7074; letter-spacing: .06em; }
+.geo-diagnostic-report__eyebrow > span:first-child { color: var(--diagnostic-teal); font-weight: 700; }
+.geo-diagnostic-report__cover-label { margin-top: 20px !important; font-size: 13px; letter-spacing: .1em; color: #5d7074; }
+.geo-diagnostic-report__cover h1 { max-width: 970px; font-size: clamp(28px, 3.4vw, 42px); line-height: 1.35; font-weight: 750; letter-spacing: -.02em; }
+.geo-diagnostic-report__cover-meta { color: #5d7074; font-size: 13px; }
+.geo-diagnostic-report__judgment { display: grid; gap: 16px; padding: 26px 28px; border-left: 4px solid var(--diagnostic-teal); background: var(--diagnostic-tint); }
+.geo-diagnostic-report__judgment h2 { font-size: 25px; line-height: 1.5; }
+.geo-diagnostic-report__judgment > p { font-size: 16px; white-space: pre-wrap; }
+.geo-diagnostic-report__kicker { color: var(--diagnostic-teal); font-size: 12px; font-weight: 700; letter-spacing: .06em; }
+.geo-diagnostic-report__cover-bottom { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px; padding-top: 8px; color: #5d7074; font-size: 13px; }
+.geo-diagnostic-report__cover-bottom .geo-diagnostic-report__download { color: #fff; background: var(--diagnostic-teal); border-color: var(--diagnostic-teal); }
+.geo-diagnostic-report__cover-bottom .ant-btn:disabled { background: #f3f4f4; border-color: #d7dfe0; color: #829195; }
+.geo-diagnostic-report--consulting > .geo-diagnostic-report__section { gap: 26px; padding: clamp(22px, 3.6vw, 40px); background: #fff; }
+.geo-diagnostic-report__section-heading { display: flex; align-items: center; gap: 16px; padding-bottom: 18px; border-bottom: 1px solid #dce5e4; }
+.geo-diagnostic-report__section-heading > span { flex: 0 0 auto; font-size: 16px; font-weight: 750; color: var(--diagnostic-teal); }
+.geo-diagnostic-report__section-heading h2 { font-size: 25px; line-height: 1.5; }
+.geo-diagnostic-report__profile { display: grid; grid-template-columns: 1.2fr 1fr; gap: 32px; }
+.geo-diagnostic-report__profile > div { display: grid; align-content: start; gap: 12px; }
+.geo-diagnostic-report__profile h3 { font-size: 23px; }
+.geo-diagnostic-report__profile dl { display: grid; align-content: start; gap: 14px; margin: 0; padding-left: 26px; border-left: 1px solid #dce5e4; }
+.geo-diagnostic-report__profile dl > div { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 12px; }
+.geo-diagnostic-report__profile dt { color: #63767b; }
+.geo-diagnostic-report__profile dd { margin: 0; overflow-wrap: anywhere; }
+.geo-diagnostic-report--consulting .geo-diagnostic-report__metrics { gap: 0; background: var(--diagnostic-paper); border-top: 2px solid var(--diagnostic-teal); }
+.geo-diagnostic-report--consulting .geo-diagnostic-report__metrics > div { border: 0; border-radius: 0; padding: 20px 22px; }
+.geo-diagnostic-report--consulting .geo-diagnostic-report__metrics > div + div { border-left: 1px solid #dce5e4; }
+.geo-diagnostic-report--consulting .geo-diagnostic-report__metrics strong { color: var(--diagnostic-ink); font-size: 36px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.geo-diagnostic-report--consulting .geo-diagnostic-report__metrics > div:nth-child(2) strong { color: var(--diagnostic-teal); }
+.geo-diagnostic-report__muted, .geo-diagnostic-report__accounting { color: #62757a; font-size: 13px; }
+.geo-diagnostic-report__accounting { padding-top: 12px; border-top: 1px solid #edf1f1; }
+.geo-diagnostic-report--consulting .geo-diagnostic-report__chart { gap: 20px; }
+.geo-diagnostic-report--consulting .geo-diagnostic-report__chart figcaption { font-size: 16px; }
+.geo-diagnostic-report--consulting .geo-diagnostic-report__chart .ant-typography { font-size: 13px; margin: -10px 0 0; }
+.geo-diagnostic-report--consulting .geo-diagnostic-report__chart-platform { padding-bottom: 16px; border-bottom: 1px solid #edf1f1; }
+.geo-diagnostic-report--consulting .geo-diagnostic-report__bar-row { grid-template-columns: minmax(80px, 160px) minmax(40px, 1fr) 100px; }
+.geo-diagnostic-report--consulting .geo-diagnostic-report__bar-track { fill: #e9eeee; }
+.geo-diagnostic-report--consulting .geo-diagnostic-report__bar-target { fill: var(--diagnostic-teal); }
+.geo-diagnostic-report--consulting .geo-diagnostic-report__bar-competitor { fill: #95aaa9; }
+.geo-diagnostic-report__table-scroll { overflow-x: auto; min-width: 0; overscroll-behavior-inline: contain; }
+.geo-diagnostic-report__table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.geo-diagnostic-report__table caption { text-align: left; padding: 0 0 14px; color: var(--diagnostic-ink); font-size: 16px; font-weight: 650; caption-side: top; }
+.geo-diagnostic-report__table th, .geo-diagnostic-report__table td { padding: 14px 16px; text-align: left; vertical-align: top; border-bottom: 1px solid #dfe7e6; min-width: 110px; }
+.geo-diagnostic-report__table thead th { background: #eaf3f2; font-weight: 650; color: #24595b; white-space: nowrap; }
+.geo-diagnostic-report__table tbody th { min-width: 230px; max-width: 400px; font-weight: 600; }
+.geo-diagnostic-report__table td { font-variant-numeric: tabular-nums; }
+.geo-diagnostic-report__table small { display: block; margin-top: 5px; color: #63767b; font-size: 12px; font-weight: 400; }
+.geo-diagnostic-report__table td strong { white-space: nowrap; }
+.geo-diagnostic-report__table tbody .geo-diagnostic-report__own-brand { background: #f1f8f7; }
+.geo-diagnostic-report__question-number { display: inline-block; color: var(--diagnostic-teal); margin-right: 8px; font-weight: 750; }
+.geo-diagnostic-report__outcome { display: inline-block; white-space: nowrap; font-size: 12px; border-radius: 4px; padding: 3px 8px; background: #f0f2f2; color: #64757a; }
+.geo-diagnostic-report__outcome--hit { background: #dcefe9; color: #12655a; font-weight: 650; }
+.geo-diagnostic-report__outcome--miss { background: #fff0e5; color: #985019; }
+.geo-diagnostic-report__outcome--unknown { border: 1px dashed #9fadae; background: #fff; }
+.geo-diagnostic-report__findings { display: grid; gap: 18px; }
+.geo-diagnostic-report__findings:empty { display: none; }
+.geo-diagnostic-report__finding { display: grid; gap: 12px; padding: 22px 24px; background: var(--diagnostic-paper); border-left: 3px solid #a8ccca; }
+.geo-diagnostic-report--consulting .geo-diagnostic-report__evidence { color: #5c7075; font-size: 13px; }
+.geo-diagnostic-report__evidence summary { cursor: pointer; width: fit-content; color: var(--diagnostic-teal); }
+.geo-diagnostic-report__evidence ol { padding-left: 18px; margin: 12px 0 0; }
+.geo-diagnostic-report__evidence li + li { margin-top: 14px; }
+.geo-diagnostic-report--consulting .geo-diagnostic-report__evidence blockquote { border-color: #b7d3d0; padding-left: 12px; color: #415a60; }
+.geo-diagnostic-report__topics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.geo-diagnostic-report__topics > article { display: grid; align-content: start; gap: 12px; min-width: 0; padding-top: 18px; border-top: 3px solid #b4d8d1; }
+.geo-diagnostic-report__topic-question { color: var(--diagnostic-teal); font-weight: 550; }
+.geo-diagnostic-report__actions { display: grid; gap: 24px; }
+.geo-diagnostic-report__action { display: grid; gap: 18px; padding: 26px; border: 1px solid #dbe5e3; scroll-margin-top: 24px; }
+.geo-diagnostic-report__action header { display: flex; align-items: flex-start; gap: 12px; }
+.geo-diagnostic-report__action-number { margin-left: auto; font-size: 24px; color: #b1bfc0; line-height: 1.2; }
+.geo-diagnostic-report__priority { flex-shrink: 0; padding: 3px 8px; font-size: 12px; font-weight: 750; line-height: 1.5; background: #eaf2f1; color: #35665f; }
+.geo-diagnostic-report__priority--p0 { background: #fff0e4; color: #ac541a; }
+.geo-diagnostic-report__action-context, .geo-diagnostic-report__action-output { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.geo-diagnostic-report__action-context > div { background: var(--diagnostic-paper); padding: 14px 16px; }
+.geo-diagnostic-report__action-context span { display: block; font-size: 12px; font-weight: 650; color: #64767b; margin-bottom: 8px; }
+.geo-diagnostic-report__action-do strong { display: block; font-size: 13px; color: var(--diagnostic-teal); margin-bottom: 6px; }
+.geo-diagnostic-report__action-output { margin: 0; padding-top: 14px; border-top: 1px solid #e3ebea; }
+.geo-diagnostic-report__action-output dt { font-size: 12px; color: #64767b; margin-bottom: 6px; }
+.geo-diagnostic-report__action-output dd { margin: 0; overflow-wrap: anywhere; }
+.geo-diagnostic-report__appendix { border-bottom: 1px solid #dfe7e6; padding-bottom: 20px; }
+.geo-diagnostic-report__appendix > summary { cursor: pointer; font-weight: 600; }
+.geo-diagnostic-report__appendix > summary > span { font-size: 12px; color: #64767b; font-weight: 400; margin-left: 10px; }
+.geo-diagnostic-report__appendix > p, .geo-diagnostic-report__appendix > ol { margin-top: 14px; }
+.geo-diagnostic-report__sample-status { font-size: 12px; color: #64767b; }
+.geo-diagnostic-report__observations + .ant-pagination { margin-top: 20px; }
+.geo-diagnostic-report__footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding: 0 4px; color: #65787c; font-size: 12px; }
+.geo-diagnostic-report__footer strong { color: var(--diagnostic-teal); letter-spacing: .08em; }
+@media (max-width: 900px) {
+  .geo-diagnostic-report--consulting { padding: 12px; gap: 16px; }
+  .geo-diagnostic-report__profile { grid-template-columns: 1fr; gap: 20px; }
+  .geo-diagnostic-report__profile dl { padding: 18px 0 0; border-left: 0; border-top: 1px solid #dce5e4; }
+  .geo-diagnostic-report__topics { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .geo-diagnostic-report__cover, .geo-diagnostic-report--consulting > .geo-diagnostic-report__section { padding: 20px 16px; }
+  .geo-diagnostic-report__judgment { padding: 18px; }
+  .geo-diagnostic-report__judgment h2, .geo-diagnostic-report__section-heading h2 { font-size: 21px; }
+  .geo-diagnostic-report--consulting .geo-diagnostic-report__metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .geo-diagnostic-report--consulting .geo-diagnostic-report__metrics > div:nth-child(3) { border-left: 0; }
+  .geo-diagnostic-report--consulting .geo-diagnostic-report__metrics > div { padding: 14px; }
+  .geo-diagnostic-report__action-context, .geo-diagnostic-report__action-output { grid-template-columns: 1fr; }
+  .geo-diagnostic-report__action { padding: 18px; }
+  .geo-diagnostic-report--consulting .geo-diagnostic-report__bar-row { grid-template-columns: minmax(60px, 100px) minmax(40px, 1fr) 80px; gap: 8px; }
+}

@@ -1,0 +1,371 @@
+server:
+  address: ${SERVER_ADDRESS:127.0.0.1}
+  port: ${SERVER_PORT:8080}
+  # The application must see the TCP peer before deciding whether forwarding headers are trusted.
+  forward-headers-strategy: none
+  shutdown: graceful
+
+spring:
+  application:
+    name: zhixiaohe-java
+  ssl:
+    bundle:
+      pem:
+        zhixiaohe-test:
+          truststore:
+            certificate: classpath:certs/zhixiaohe-test-ca.crt
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  jackson:
+    time-zone: UTC
+  threads:
+    virtual:
+      enabled: true
+  servlet:
+    multipart:
+      max-file-size: 21MB
+      max-request-size: 22MB
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    # Runtime identity: application DML only. Never point these at the migration role.
+    url: ${APP_DB_URL}
+    username: ${APP_DB_USERNAME}
+    password: ${APP_DB_PASSWORD}
+    hikari:
+      minimum-idle: ${DB_POOL_MIN_IDLE:2}
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:10}
+      connection-timeout: ${DB_CONNECTION_TIMEOUT_MS:30000}
+      idle-timeout: ${DB_IDLE_TIMEOUT_MS:600000}
+      max-lifetime: ${DB_MAX_LIFETIME_MS:1800000}
+      connection-init-sql: SET TIME ZONE 'UTC'
+  flyway:
+    # Ordinary development is DML-only and must not require migration credentials.
+    enabled: ${SPRING_FLYWAY_ENABLED:false}
+    # Migration identity: owns schema evolution but is never used by the runtime pool.
+    url: ${FLYWAY_DB_URL}
+    user: ${FLYWAY_DB_USERNAME}
+    password: ${FLYWAY_DB_PASSWORD}
+    create-schemas: true
+    default-schema: business
+    schemas: business,agent
+    locations: classpath:db/migration
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      username: ${REDIS_USERNAME:}
+      password: ${REDIS_PASSWORD:}
+      ssl:
+        enabled: ${REDIS_SSL_ENABLED:false}
+        bundle: ${REDIS_SSL_BUNDLE:zhixiaohe-test}
+  rabbitmq:
+    host: ${RABBITMQ_HOST:127.0.0.1}
+    port: ${RABBITMQ_PORT:5672}
+    virtual-host: ${RABBITMQ_VHOST:/zhixiaohe}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    ssl:
+      enabled: ${RABBITMQ_SSL_ENABLED:false}
+      bundle: ${RABBITMQ_SSL_BUNDLE:zhixiaohe-test}
+      validate-server-certificate: true
+      verify-hostname: true
+    listener:
+      simple:
+        acknowledge-mode: manual
+        prefetch: 1
+  quartz:
+    job-store-type: jdbc
+    scheduler-name: zhixiaohe-geo-plan
+    overwrite-existing-jobs: false
+    jdbc:
+      initialize-schema: never
+    properties:
+      org.quartz.scheduler.instanceId: AUTO
+      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+      org.quartz.jobStore.tablePrefix: business.qrtz_
+      org.quartz.jobStore.isClustered: true
+      org.quartz.jobStore.clusterCheckinInterval: 10000
+      org.quartz.jobStore.misfireThreshold: 60000
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    banner: false
+    db-config:
+      id-type: assign_id
+
+management:
+  tracing:
+    enabled: ${OTEL_TRACING_ENABLED:false}
+    sampling:
+      probability: ${OTEL_TRACING_SAMPLING_PROBABILITY:0.1}
+  otlp:
+    tracing:
+      export:
+        enabled: ${OTEL_TRACING_ENABLED:false}
+      endpoint: ${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT:http://127.0.0.1:4318/v1/traces}
+      connect-timeout: ${OTEL_EXPORTER_CONNECT_TIMEOUT:500ms}
+      timeout: ${OTEL_EXPORTER_TIMEOUT:1s}
+      transport: http
+  opentelemetry:
+    resource-attributes:
+      service.name: ${OTEL_SERVICE_NAME:zhixiaohe-java}
+      service.version: ${APP_GIT_COMMIT:unknown}
+      deployment.environment: ${APP_ENVIRONMENT:local}
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+
+logging:
+  pattern:
+    correlation: "[traceId=%X{traceId:-},spanId=%X{spanId:-}] "
+
+zhixiaohe:
+  agent-platform:
+    automatic-monitor-enabled: ${ZHIXIAOHE_AUTOMATIC_MONITOR_ENABLED:false}
+    native-action-max-points-per-action: ${ZHIXIAOHE_NATIVE_ACTION_MAX_POINTS_PER_ACTION:50}
+    native-action-max-points-per-day: ${ZHIXIAOHE_NATIVE_ACTION_MAX_POINTS_PER_DAY:200}
+    # First complete trusted Shanghai ledger day after the accounting-clock release.
+    # No value means automatic admission remains closed; never infer from old rows.
+    monitor-budget-earliest-trusted-date: ${ZHIXIAOHE_MONITOR_BUDGET_EARLIEST_TRUSTED_DATE:}
+  geo:
+    enabled: ${GEO_ENABLED:true}
+  catalog:
+    enabled: ${CATALOG_ENABLED:true}
+  conversation:
+    enabled: ${CONVERSATION_ENABLED:true}
+    business-outcome-enabled: ${CONVERSATION_BUSINESS_OUTCOME_ENABLED:false}
+    resource-lookup-enabled: ${CONVERSATION_RESOURCE_LOOKUP_ENABLED:false}
+    context-ref-ttl: ${CONVERSATION_CONTEXT_REF_TTL:5m}
+    run-deadline: ${CONVERSATION_RUN_DEADLINE:3m}
+    recovery-enabled: ${CONVERSATION_RECOVERY_ENABLED:true}
+    recovery-grace: ${CONVERSATION_RECOVERY_GRACE:30s}
+    max-concurrent-runs: ${CONVERSATION_MAX_CONCURRENT_RUNS:2}
+    max-turns-per-minute: ${CONVERSATION_MAX_TURNS_PER_MINUTE:10}
+    max-turns-per-day: ${CONVERSATION_MAX_TURNS_PER_DAY:200}
+    max-vision-turns-per-day: ${CONVERSATION_MAX_VISION_TURNS_PER_DAY:40}
+    # Native GEO only: up to three searches, with one bounded transport retry each.
+    web-search-max-provider-calls: ${CONVERSATION_WEB_SEARCH_MAX_PROVIDER_CALLS:6}
+    browser-sse-timeout: ${CONVERSATION_BROWSER_SSE_TIMEOUT:2m}
+    workspace-key-prefix: "${REDIS_KEY_PREFIX:zhixiaohe:}conversation:workspace:v1:"
+    workspace-ttl: ${CONVERSATION_WORKSPACE_TTL:30m}
+    workspace-max-bytes: ${CONVERSATION_WORKSPACE_MAX_BYTES:196608}
+    target-input-tokens: ${CONVERSATION_TARGET_INPUT_TOKENS:128000}
+    reserved-output-tokens: ${CONVERSATION_RESERVED_OUTPUT_TOKENS:16000}
+    reserved-tool-tokens: ${CONVERSATION_RESERVED_TOOL_TOKENS:8000}
+    reserved-safety-tokens: ${CONVERSATION_RESERVED_SAFETY_TOKENS:4000}
+  paid-task:
+    enabled: ${PAID_TASK_ENABLED:false}
+    token-secret: ${TASK_CONTROL_TOKEN_SECRET:}
+    confirmation-ttl: ${TASK_CONFIRMATION_TTL:10m}
+    execution-lease: ${TASK_EXECUTION_LEASE:2m}
+    max-queue-age: ${TASK_MAX_QUEUE_AGE:30m}
+    max-execution-attempts: ${TASK_MAX_EXECUTION_ATTEMPTS:2}
+    # Explicit test-only IMAGE quote (legacy variable name). This is not production product pricing.
+    image-mock-pricing-version-id: ${IMAGE_MOCK_PRICING_VERSION_ID:0}
+    image-mock-points: ${IMAGE_MOCK_POINTS:0}
+    # Explicit test-only VIDEO quote. This is not production product pricing.
+    video-test-pricing-version-id: ${VIDEO_TEST_PRICING_VERSION_ID:0}
+    video-test-points: ${VIDEO_TEST_POINTS:0}
+    video-max-provider-calls: ${VIDEO_MAX_PROVIDER_CALLS:61}
+    reference-image-generation-enabled: ${REFERENCE_IMAGE_GENERATION_ENABLED:false}
+    image-region-edit-enabled: ${IMAGE_REGION_EDIT_ENABLED:false}
+    image-to-video-enabled: ${IMAGE_TO_VIDEO_ENABLED:false}
+    geo-execution-enabled: ${GEO_EXECUTION_ENABLED:false}
+    geo-interpretation-enabled: ${GEO_INTERPRETATION_ENABLED:false}
+    geo-diagnostic-enabled: ${GEO_DIAGNOSTIC_ENABLED:false}
+    geo-diagnostic-submission-enabled: ${GEO_DIAGNOSTIC_SUBMISSION_ENABLED:false}
+    geo-diagnostic-max-provider-calls: ${GEO_DIAGNOSTIC_MAX_PROVIDER_CALLS:200}
+    geo-test-pricing-version-id: ${GEO_TEST_PRICING_VERSION_ID:0}
+    geo-test-unit-points: ${GEO_TEST_UNIT_POINTS:0}
+    geo-max-provider-calls: ${GEO_MAX_PROVIDER_CALLS:20}
+    # Capacity planning reserve: one GEO unit may make an initial request plus bounded retries.
+    geo-max-attempts-per-unit: ${GEO_MAX_ATTEMPTS_PER_UNIT:2}
+    geo-max-concurrency: ${GEO_MAX_CONCURRENCY:3}
+    geo-execution-deadline: ${GEO_EXECUTION_DEADLINE:30m}
+    geo-configured-platforms: ${GEO_CONFIGURED_PLATFORMS:}
+    geo-plan-enabled: ${GEO_PLAN_ENABLED:false}
+    geo-plan-min-interval-days: ${GEO_PLAN_MIN_INTERVAL_DAYS:1}
+    geo-plan-max-interval-days: ${GEO_PLAN_MAX_INTERVAL_DAYS:365}
+    article-execution-enabled: ${ARTICLE_EXECUTION_ENABLED:false}
+    # Explicit test-only ARTICLE quotes. These are not production product prices.
+    article-test-pricing-version-id: ${ARTICLE_TEST_PRICING_VERSION_ID:0}
+    article-title-test-points: ${ARTICLE_TITLE_TEST_POINTS:0}
+    article-outline-test-points: ${ARTICLE_OUTLINE_TEST_POINTS:0}
+    article-body-test-points: ${ARTICLE_BODY_TEST_POINTS:0}
+    article-rewrite-test-points: ${ARTICLE_REWRITE_TEST_POINTS:0}
+    article-max-model-calls: ${ARTICLE_MAX_MODEL_CALLS:2}
+    article-max-repair-retries: ${ARTICLE_MAX_REPAIR_RETRIES:1}
+    article-max-input-tokens: ${ARTICLE_MAX_INPUT_TOKENS:128000}
+    article-max-output-tokens: ${ARTICLE_MAX_OUTPUT_TOKENS:16000}
+    article-execution-deadline: ${ARTICLE_EXECUTION_DEADLINE:10m}
+    outbox-publisher-enabled: ${TASK_OUTBOX_PUBLISHER_ENABLED:false}
+    execution-watchdog-enabled: ${TASK_EXECUTION_WATCHDOG_ENABLED:true}
+    exchange: ${TASK_RABBITMQ_EXCHANGE:zhixiaohe.task}
+    image-routing-key: ${TASK_IMAGE_ROUTING_KEY:agent.image}
+    image-queue: ${TASK_IMAGE_QUEUE:zhixiaohe.agent.image}
+    video-routing-key: ${TASK_VIDEO_ROUTING_KEY:agent.video}
+    video-queue: ${TASK_VIDEO_QUEUE:zhixiaohe.agent.video}
+    geo-routing-key: ${TASK_GEO_ROUTING_KEY:agent.geo}
+    geo-queue: ${TASK_GEO_QUEUE:zhixiaohe.agent.geo}
+    article-routing-key: ${TASK_ARTICLE_ROUTING_KEY:agent.article}
+    article-queue: ${TASK_ARTICLE_QUEUE:zhixiaohe.agent.article}
+    dead-letter-exchange: ${TASK_RABBITMQ_DLX:zhixiaohe.task.dlx}
+    image-dead-letter-queue: ${TASK_IMAGE_DLQ:zhixiaohe.agent.image.dlq}
+    video-dead-letter-queue: ${TASK_VIDEO_DLQ:zhixiaohe.agent.video.dlq}
+    geo-dead-letter-queue: ${TASK_GEO_DLQ:zhixiaohe.agent.geo.dlq}
+    article-dead-letter-queue: ${TASK_ARTICLE_DLQ:zhixiaohe.agent.article.dlq}
+  workflow-execution:
+    enabled: ${WORKFLOW_EXECUTION_ENABLED:false}
+    compatible-worker-ready: ${WORKFLOW_COMPATIBLE_WORKER_READY:false}
+    lease: ${WORKFLOW_EXECUTION_LEASE:2m}
+    max-execution-attempts: ${WORKFLOW_MAX_EXECUTION_ATTEMPTS:2}
+    max-replans: ${WORKFLOW_MAX_REPLANS:1}
+    exchange: ${TASK_RABBITMQ_EXCHANGE:zhixiaohe.task}
+    routing-key: ${TASK_WORKFLOW_ROUTING_KEY:agent.workflow}
+    queue: ${TASK_WORKFLOW_QUEUE:zhixiaohe.agent.workflow}
+    dead-letter-exchange: ${TASK_RABBITMQ_DLX:zhixiaohe.task.dlx}
+    dead-letter-queue: ${TASK_WORKFLOW_DLQ:zhixiaohe.agent.workflow.dlq}
+  media:
+    enabled: ${MEDIA_ENABLED:false}
+    execution-enabled: ${MEDIA_SUBMISSION_EXECUTION_ENABLED:false}
+    resource-sync-enabled: ${MEDIA_RESOURCE_SYNC_ENABLED:false}
+    order-poll-enabled: ${MEDIA_ORDER_POLL_ENABLED:false}
+    base-url: ${MEDIA_API_BASE_URL:}
+    app-key: ${MEDIA_API_APP_KEY:}
+    provider-code: ${MEDIA_PROVIDER_CODE:MEDIA_PROCUREMENT}
+    supported-model-ids: ${MEDIA_SUPPORTED_MODEL_IDS:1}
+    connect-timeout: ${MEDIA_API_CONNECT_TIMEOUT:5s}
+    read-timeout: ${MEDIA_API_READ_TIMEOUT:20s}
+    quote-ttl: ${MEDIA_QUOTE_TTL:10m}
+    resource-max-age: ${MEDIA_RESOURCE_MAX_AGE:36h}
+    unknown-poll-delay: ${MEDIA_UNKNOWN_POLL_DELAY:2m}
+    accepted-poll-delay: ${MEDIA_ACCEPTED_POLL_DELAY:10m}
+    sync-page-size: ${MEDIA_SYNC_PAGE_SIZE:100}
+    max-sync-pages: ${MEDIA_MAX_SYNC_PAGES:500}
+    image-submission-enabled: ${MEDIA_IMAGE_SUBMISSION_ENABLED:false}
+    image-verified-resource-ids: ${MEDIA_IMAGE_VERIFIED_RESOURCE_IDS:}
+    image-contract-version: ${MEDIA_IMAGE_CONTRACT_VERSION:}
+    image-max-count: ${MEDIA_IMAGE_MAX_COUNT:10}
+    image-max-bytes: ${MEDIA_IMAGE_MAX_BYTES:10485760}
+  asset:
+    enabled: ${ASSET_INGESTION_ENABLED:false}
+    worker-enabled: ${ASSET_INGESTION_WORKER_ENABLED:false}
+    environment: ${APP_ENVIRONMENT:local}
+    provider-allowed-hosts: ${ASSET_PROVIDER_ALLOWED_HOSTS:}
+    connect-timeout: ${ASSET_PROVIDER_CONNECT_TIMEOUT:5s}
+    read-timeout: ${ASSET_PROVIDER_READ_TIMEOUT:20s}
+    total-timeout: ${ASSET_PROVIDER_TOTAL_TIMEOUT:30s}
+    lease: ${ASSET_INGESTION_LEASE:2m}
+    retry-delay: ${ASSET_INGESTION_RETRY_DELAY:10s}
+    signed-url-ttl: ${ASSET_SIGNED_URL_TTL:5m}
+    reference-read-url-ttl: ${ASSET_REFERENCE_READ_URL_TTL:30m}
+    max-image-bytes: ${ASSET_MAX_IMAGE_BYTES:20971520}
+    max-video-bytes: ${ASSET_MAX_VIDEO_BYTES:209715200}
+    video-read-timeout: ${ASSET_VIDEO_READ_TIMEOUT:60s}
+    video-total-timeout: ${ASSET_VIDEO_TOTAL_TIMEOUT:5m}
+    video-ingestion-deadline: ${ASSET_VIDEO_INGESTION_DEADLINE:30m}
+    ffprobe-path: ${ASSET_FFPROBE_PATH:ffprobe}
+    ffprobe-timeout: ${ASSET_FFPROBE_TIMEOUT:15s}
+    allowed-video-codecs: ${ASSET_ALLOWED_VIDEO_CODECS:h264}
+    video-duration-tolerance: ${ASSET_VIDEO_DURATION_TOLERANCE:750ms}
+    max-redirects: ${ASSET_PROVIDER_MAX_REDIRECTS:2}
+    max-attempts: ${ASSET_INGESTION_MAX_ATTEMPTS:3}
+    temp-directory: ${ASSET_TEMP_DIRECTORY:${java.io.tmpdir}/zhixiaohe-assets}
+    safety-mode: ${ASSET_CONTENT_SAFETY_MODE:REAL}
+    test-bypass-download-enabled: ${ASSET_TEST_BYPASS_DOWNLOAD_ENABLED:false}
+    oss:
+      endpoint: ${OSS_ENDPOINT:}
+      region: ${OSS_REGION:}
+      bucket: ${OSS_BUCKET:}
+      access-key-id: ${OSS_ACCESS_KEY_ID:}
+      access-key-secret: ${OSS_ACCESS_KEY_SECRET:}
+  billing:
+    enabled: ${BILLING_ENABLED:true}
+    invoice-webhook:
+      url: ${INVOICE_FEISHU_WEBHOOK_URL:}
+      signing-secret: ${INVOICE_FEISHU_WEBHOOK_SIGNING_SECRET:}
+      worker-enabled: ${INVOICE_FEISHU_WORKER_ENABLED:true}
+      poll-delay-ms: ${INVOICE_FEISHU_POLL_DELAY_MS:30000}
+    # Never enabled outside a controlled environment: this sweep writes to the database on a timer.
+    expiry-sweep-enabled: ${BILLING_EXPIRY_SWEEP_ENABLED:false}
+    expiry-sweep-delay: ${BILLING_EXPIRY_SWEEP_DELAY:60000}
+    recharge-order-ttl: ${BILLING_RECHARGE_ORDER_TTL:30m}
+    min-recharge-amount-cents: ${BILLING_MIN_RECHARGE_AMOUNT_CENTS:100}
+    max-recharge-amount-cents: ${BILLING_MAX_RECHARGE_AMOUNT_CENTS:500000}
+    # NOT a production rate. It exists so the control plane can be exercised; the real conversion
+    # rate must be frozen by the product owner before any live payment Gate.
+    points-per-yuan: ${BILLING_POINTS_PER_YUAN:100}
+    confirmation-token-ttl: ${BILLING_CONFIRMATION_TOKEN_TTL:10m}
+    manual-adjustment-max-points: ${BILLING_MANUAL_ADJUSTMENT_MAX_POINTS:100000}
+    recharge-description: ${BILLING_RECHARGE_DESCRIPTION:光禾AI智能体框架积分充值}
+    wechat-pay:
+      # Off unless a controlled environment supplies every credential below. With any of them
+      # missing the provider reports PAYMENT_PROVIDER_NOT_CONFIGURED and refuses to create orders.
+      enabled: ${WECHAT_PAY_ENABLED:false}
+      merchant-id: ${WECHAT_PAY_MERCHANT_ID:}
+      app-id: ${WECHAT_PAY_APP_ID:}
+      api-v3-key: ${WECHAT_PAY_API_V3_KEY:}
+      merchant-serial-number: ${WECHAT_PAY_MERCHANT_SERIAL_NUMBER:}
+      private-key: ${WECHAT_PAY_PRIVATE_KEY:}
+      platform-certificate: ${WECHAT_PAY_PLATFORM_CERTIFICATE:}
+      notify-url: ${WECHAT_PAY_NOTIFY_URL:}
+      connect-timeout: ${WECHAT_PAY_CONNECT_TIMEOUT:3s}
+      read-timeout: ${WECHAT_PAY_READ_TIMEOUT:10s}
+      callback-tolerance: ${WECHAT_PAY_CALLBACK_TOLERANCE:5m}
+  auth:
+    enabled: ${AUTH_ENABLED:true}
+    jwt:
+      issuer: ${JWT_ISSUER:zhixiaohe-java}
+      access-token-ttl-seconds: ${JWT_ACCESS_TOKEN_TTL_SECONDS:259200}
+      secret-base64: ${JWT_SECRET_BASE64}
+    login-rate-limit:
+      max-failures: ${LOGIN_MAX_FAILURES:5}
+      window-seconds: ${LOGIN_FAILURE_WINDOW_SECONDS:900}
+      key-prefix: ${REDIS_KEY_PREFIX:zhixiaohe:}
+    account-access:
+      enabled: ${ACCOUNT_ACCESS_ENABLED:true}
+      initial-point-grant-max: ${ACCOUNT_INITIAL_POINT_GRANT_MAX:10000}
+      activation-token-ttl: ${ACCOUNT_ACTIVATION_TOKEN_TTL:30m}
+      temporary-password-length: ${ACCOUNT_TEMPORARY_PASSWORD_LENGTH:16}
+      bcrypt-strength: ${ACCOUNT_BCRYPT_STRENGTH:12}
+  id:
+    worker-id: ${SNOWFLAKE_WORKER_ID}
+    datacenter-id: ${SNOWFLAKE_DATACENTER_ID:0}
+  registration:
+    enabled: ${REGISTRATION_ENABLED:false}
+    terms-version: ${REGISTRATION_TERMS_VERSION}
+    terms-url: ${REGISTRATION_TERMS_URL:/legal/terms}
+    privacy-version: ${REGISTRATION_PRIVACY_VERSION}
+    privacy-url: ${REGISTRATION_PRIVACY_URL:/legal/privacy}
+    sms-cooldown-seconds: ${SMS_COOLDOWN_SECONDS:60}
+  internal:
+    enabled: ${INTERNAL_HMAC_ENABLED:true}
+    java-m1-ready: ${JAVA_M1_READY:false}
+    java-m1-server-ready: ${JAVA_M1_SERVER_READY:false}
+    m0-gate-status: ${M0_GATE:NOT_RUN}
+    key-id: ${INTERNAL_HMAC_KEY_ID:agent-service-v1}
+    secret: ${INTERNAL_HMAC_SECRET}
+    allowed-clock-skew: ${INTERNAL_HMAC_ALLOWED_CLOCK_SKEW:60s}
+    nonce-ttl: ${INTERNAL_HMAC_NONCE_TTL:120s}
+    nonce-key-prefix: "${REDIS_KEY_PREFIX:zhixiaohe:}internal:hmac:nonce:"
+    max-body-bytes: ${INTERNAL_HMAC_MAX_BODY_BYTES:1048576}
+    reverse-probe-enabled: ${INTERNAL_REVERSE_PROBE_ENABLED:false}
+    python:
+      base-url: ${AGENT_BASE_URL:http://127.0.0.1:8000}
+      connect-timeout: ${AGENT_CONNECT_TIMEOUT:1s}
+      read-timeout: ${AGENT_READ_TIMEOUT:2s}
+      stream-read-timeout: ${AGENT_STREAM_READ_TIMEOUT:3m}
+      max-response-bytes: ${AGENT_MAX_RESPONSE_BYTES:1048576}

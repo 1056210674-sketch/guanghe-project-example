@@ -1,0 +1,302 @@
+{
+  "schemaVersion": 1,
+  "bundleVersion": "agent-bundle-v1.62.1",
+  "bundleSha256": "942d5ec0b9581900a7708cb17ff9165fa827e3edc1211aded0f933fc9e99fe7d",
+  "workerProfileCode": "COMMERCE_ASSISTANT",
+  "acceptedArticlePromptVersions": [
+    "agent-bundle-v1.11.0",
+    "agent-bundle-v1.12.0",
+    "agent-bundle-v1.13.0",
+    "agent-bundle-v1.14.0",
+    "agent-bundle-v1.15.0",
+    "agent-bundle-v1.16.0",
+    "agent-bundle-v1.17.0",
+    "agent-bundle-v1.18.0",
+    "agent-bundle-v1.19.0",
+    "agent-bundle-v1.20.0",
+    "agent-bundle-v1.21.0",
+    "agent-bundle-v1.22.0",
+    "agent-bundle-v1.23.0",
+    "agent-bundle-v1.24.0",
+    "agent-bundle-v1.25.0",
+    "agent-bundle-v1.26.0",
+    "agent-bundle-v1.27.0",
+    "agent-bundle-v1.27.1",
+    "agent-bundle-v1.28.0",
+    "agent-bundle-v1.29.0",
+    "agent-bundle-v1.30.0",
+    "agent-bundle-v1.31.0",
+    "agent-bundle-v1.32.0",
+    "agent-bundle-v1.33.0",
+    "agent-bundle-v1.33.1",
+    "agent-bundle-v1.33.2",
+    "agent-bundle-v1.33.3",
+    "agent-bundle-v1.33.4",
+    "agent-bundle-v1.33.5",
+    "agent-bundle-v1.33.6",
+    "agent-bundle-v1.33.7",
+    "agent-bundle-v1.33.8",
+    "agent-bundle-v1.33.9",
+    "agent-bundle-v1.33.10",
+    "agent-bundle-v1.33.11",
+    "agent-bundle-v1.33.12",
+    "agent-bundle-v1.33.13",
+    "agent-bundle-v1.40.0",
+    "agent-bundle-v1.41.0",
+    "agent-bundle-v1.42.0",
+    "agent-bundle-v1.46.3",
+    "agent-bundle-v1.46.4",
+    "agent-bundle-v1.47.0",
+    "agent-bundle-v1.48.0",
+    "agent-bundle-v1.48.1",
+    "agent-bundle-v1.48.2",
+    "agent-bundle-v1.48.3",
+    "agent-bundle-v1.49.0",
+    "agent-bundle-v1.50.0",
+    "agent-bundle-v1.51.0",
+    "agent-bundle-v1.52.0",
+    "agent-bundle-v1.53.0",
+    "agent-bundle-v1.54.0",
+    "agent-bundle-v1.55.0",
+    "agent-bundle-v1.56.0",
+    "agent-bundle-v1.58.0",
+    "agent-bundle-v1.59.0",
+    "agent-bundle-v1.60.0",
+    "agent-bundle-v1.61.0",
+    "agent-bundle-v1.62.1"
+  ],
+  "tools": {
+    "context.read": {
+      "requiredCapabilities": [
+        "resources.read"
+      ]
+    },
+    "brand.save": {
+      "requiredCapabilities": [
+        "brand.write"
+      ]
+    },
+    "memory.read": {
+      "requiredCapabilities": [
+        "memory.read"
+      ]
+    },
+    "memory.upsert": {
+      "requiredCapabilities": [
+        "memory.write"
+      ]
+    },
+    "memory.forget": {
+      "requiredCapabilities": [
+        "memory.delete"
+      ]
+    },
+    "geo.monitor": {
+      "requiredCapabilities": [
+        "geo.monitor"
+      ]
+    },
+    "article.generate": {
+      "requiredCapabilities": [
+        "article.generate"
+      ]
+    },
+    "image.generate": {
+      "requiredCapabilities": [
+        "image.generate"
+      ]
+    },
+    "video.generate": {
+      "requiredCapabilities": [
+        "video.generate"
+      ]
+    },
+    "web.search": {
+      "requiredCapabilities": [
+        "web.search"
+      ]
+    },
+    "context.catalog.inspect": {
+      "requiredCapabilities": [
+        "resources.read"
+      ]
+    },
+    "context.resources.search": {
+      "requiredCapabilities": [
+        "resources.read"
+      ]
+    },
+    "context.resources.read": {
+      "requiredCapabilities": [
+        "resources.read"
+      ]
+    },
+    "context.memory.search": {
+      "requiredCapabilities": [
+        "memory.read"
+      ]
+    },
+    "context.task_workspace.inspect": {
+      "requiredCapabilities": [
+        "resources.read"
+      ]
+    },
+    "analysis.competitor.compare": {
+      "requiredCapabilities": [
+        "geo.read"
+      ]
+    },
+    "analysis.evidence.aggregate": {
+      "requiredCapabilities": [
+        "geo.read"
+      ]
+    },
+    "task_draft.propose": {
+      "requiredCapabilities": [
+        "task.prepare"
+      ]
+    },
+    "workflow_plan.propose": {
+      "requiredCapabilities": [
+        "geo.monitor",
+        "image.generate",
+        "video.generate",
+        "article.generate"
+      ]
+    }
+  },
+  "agents": [
+    {
+      "agentKey": "geo",
+      "agentVersion": "1.0.0",
+      "catalogueAdapterKey": "geo",
+      "runtimeKind": "native",
+      "promptCode": "GEO_NATIVE_LOOP_V1",
+      "executionRelease": "native-20261013-v1",
+      "intent": "GEO",
+      "contextPolicy": "geo-brand",
+      "continuationPolicy": "geo-article",
+      "explicitActions": [
+        "MONITOR_RUN",
+        "ARTICLE_FULL_V1"
+      ],
+      "requiredCapabilities": [
+        "chat"
+      ],
+      "capabilities": [
+        "chat",
+        "resources.read",
+        "geo.read",
+        "geo.monitor",
+        "article.generate",
+        "media.recommend",
+        "memory.read",
+        "memory.write",
+        "memory.delete",
+        "brand.write",
+        "web.search",
+        "task.prepare"
+      ],
+      "legacyCapabilityGrants": {
+        "resources.read": [
+          "memory.read",
+          "memory.write",
+          "memory.delete",
+          "brand.write"
+        ],
+        "geo.read": [
+          "web.search"
+        ],
+        "geo.monitor": [
+          "task.prepare"
+        ],
+        "article.generate": [
+          "task.prepare"
+        ]
+      },
+      "allowedTools": [
+        "context.read",
+        "brand.save",
+        "memory.read",
+        "memory.upsert",
+        "memory.forget",
+        "geo.monitor",
+        "article.generate",
+        "web.search",
+        "context.catalog.inspect",
+        "context.resources.search",
+        "context.resources.read",
+        "context.memory.search",
+        "context.task_workspace.inspect",
+        "analysis.competitor.compare",
+        "analysis.evidence.aggregate",
+        "task_draft.propose",
+        "workflow_plan.propose"
+      ]
+    },
+    {
+      "agentKey": "creative",
+      "agentVersion": "1.0.0",
+      "catalogueAdapterKey": "creative",
+      "runtimeKind": "native",
+      "promptCode": "CREATIVE_NATIVE_LOOP_V1",
+      "executionRelease": "native-20261013-v1",
+      "intent": "GENERAL",
+      "contextPolicy": "plain",
+      "continuationPolicy": "none",
+      "explicitActions": [],
+      "requiredCapabilities": [
+        "chat"
+      ],
+      "capabilities": [
+        "chat",
+        "resources.read",
+        "image.generate",
+        "video.generate",
+        "memory.read",
+        "memory.write",
+        "memory.delete"
+      ],
+      "legacyCapabilityGrants": {
+        "resources.read": [
+          "memory.read",
+          "memory.write",
+          "memory.delete"
+        ]
+      },
+      "allowedTools": [
+        "context.read",
+        "memory.read",
+        "memory.upsert",
+        "memory.forget",
+        "context.resources.search",
+        "context.resources.read",
+        "image.generate",
+        "video.generate"
+      ]
+    },
+    {
+      "agentKey": "summary",
+      "agentVersion": "1.0.0",
+      "catalogueAdapterKey": "summary",
+      "runtimeKind": "summary",
+      "promptCode": "SUMMARY_TEXT_V1",
+      "executionRelease": "native-20261013-v1",
+      "intent": "GENERAL",
+      "contextPolicy": "plain",
+      "continuationPolicy": "none",
+      "explicitActions": [],
+      "requiredCapabilities": [
+        "chat",
+        "text.summarize"
+      ],
+      "capabilities": [
+        "chat",
+        "resources.read",
+        "text.summarize"
+      ],
+      "legacyCapabilityGrants": {},
+      "allowedTools": []
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "repository": "https://gitee.com/guanghe_888/guanghe-agent.git",
+  "gitCommit": "92e5d95875bfdd2801f92111ccd41d9633fb9311",
+  "sourceWorktreeDirty": false,
+  "sourcePath": "contracts/agent-openapi.yaml",
+  "sha256LfNormalized": "3e04114473066002f6a218e719ebb9377cc78b6c81b174d35bc4a9b3c01d37e2",
+  "sharedContracts": {
+    "contracts/hmac/hmac-v1-test-vector.json":
+      "dfbd80085bd9bb9276fc8bf1eff249acc07c9f0b80f6e578da12aa1d2fa4cc60",
+    "contracts/rabbit/task-execution-requested-v1.schema.json":
+      "e13ea99e873c34a9ccad011148b1c53d6d606109b206b27b875aa20f150e2928"
+  }
+}

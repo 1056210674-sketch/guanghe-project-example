@@ -1,0 +1,428 @@
+.login-page {
+  display: grid;
+  grid-template-columns: clamp(616px, 48.5vw, 744px) minmax(0, 1fr);
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow-x: clip;
+  background: var(--zxh-color-surface);
+}
+
+.first-login-page {
+  display: grid;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: 48px 24px;
+  place-items: center;
+  background: linear-gradient(145deg, #fff8f6, #fff);
+}
+
+.first-login-card {
+  display: grid;
+  width: min(100%, 520px);
+  gap: 24px;
+  padding: 40px;
+  border: 1px solid var(--zxh-color-border);
+  border-radius: var(--zxh-radius-lg);
+  background: var(--zxh-color-surface);
+  box-shadow: var(--zxh-shadow-heavy);
+}
+
+.first-login-card .brand__logo-frame { width: 48px; height: 48px; flex-basis: 48px; }
+.first-login-card .brand__name { font-size: 28px; }
+.first-login-card h2.ant-typography { margin: 0 0 8px; }
+
+.login-hero {
+  position: relative;
+  min-width: 0;
+  min-height: 760px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 58% 47%, rgba(229, 57, 53, 0.1), transparent 31%),
+    linear-gradient(145deg, #fffefa 0%, #fff8f6 58%, #fffdfb 100%);
+}
+
+.login-hero::before,
+.login-hero::after {
+  position: absolute;
+  right: -8%;
+  bottom: 4%;
+  width: 86%;
+  height: 20%;
+  border: 2px solid rgba(229, 57, 53, 0.1);
+  border-radius: 50%;
+  content: '';
+  pointer-events: none;
+  transform: rotate(-7deg);
+}
+
+.login-hero::after {
+  right: 5%;
+  bottom: 1%;
+  border-color: rgba(229, 57, 53, 0.07);
+  transform: rotate(5deg);
+}
+
+.login-hero__inner {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 744px);
+  min-height: max(760px, 100vh);
+  min-height: max(760px, 100svh);
+  margin: 0 auto;
+  padding-top: clamp(72px, 11.5vh, 118px);
+}
+
+.login-hero__intro {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  margin: 0 auto;
+  padding-inline: clamp(64px, 6vw, 88px);
+}
+
+.login-hero__intro .brand {
+  gap: 22px;
+}
+
+.login-hero__intro .brand__logo-frame {
+  width: clamp(72px, 5.7vw, 88px);
+  height: clamp(72px, 5.7vw, 88px);
+  flex-basis: clamp(72px, 5.7vw, 88px);
+  border-radius: 16px;
+}
+
+.login-hero__intro .brand__name {
+  font-size: clamp(40px, 3.25vw, 50px);
+  line-height: 1.3;
+}
+
+.login-hero__intro .ant-typography {
+  margin: 24px 0 0;
+  color: var(--zxh-color-text-secondary);
+  font-size: clamp(22px, 1.7vw, 28px);
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+.login-hero__visual {
+  position: relative;
+  z-index: 2;
+  width: min(600px, calc(100% - 56px));
+  margin: 24px auto 0;
+  aspect-ratio: 600 / 620;
+  isolation: isolate;
+}
+
+.login-hero__visual::before {
+  position: absolute;
+  top: 15%;
+  left: 15%;
+  z-index: -1;
+  width: 70%;
+  height: 66%;
+  border-radius: 50%;
+  background: rgba(229, 57, 53, 0.1);
+  content: '';
+  filter: blur(52px);
+  pointer-events: none;
+}
+
+.login-product-panel,
+.login-geo-card,
+.login-generation-card {
+  border: 1px solid rgba(229, 57, 53, 0.1);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--zxh-shadow-heavy);
+  backdrop-filter: blur(10px);
+}
+
+.login-product-panel {
+  position: absolute;
+  top: 4%;
+  right: 0;
+  z-index: 1;
+  width: 74%;
+  padding: 18px;
+  border-radius: var(--zxh-radius-xl);
+}
+
+.login-product-panel__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.login-product-panel__heading strong,
+.login-generation-card > strong {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 22px;
+}
+
+.login-product-panel__heading span {
+  color: var(--zxh-color-text-tertiary);
+  font-size: 11px;
+  line-height: 18px;
+}
+
+.login-product-panel__gallery,
+.login-generation-card__gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.login-product-panel__image,
+.login-generation-card__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--zxh-radius-md);
+  object-fit: cover;
+}
+
+.login-product-focus {
+  position: absolute;
+  top: 26%;
+  left: 22%;
+  z-index: 3;
+  width: 46%;
+  overflow: hidden;
+  aspect-ratio: 1;
+  border: 1px solid rgba(229, 57, 53, 0.08);
+  border-radius: 28px;
+  background: #f3f3f3;
+  box-shadow: 0 18px 38px rgba(79, 35, 28, 0.2);
+}
+
+.login-product-focus__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.login-geo-card {
+  position: absolute;
+  top: 35%;
+  left: 0;
+  z-index: 4;
+  width: 32%;
+  min-width: 176px;
+  padding: 16px;
+  border-radius: var(--zxh-radius-lg);
+}
+
+.login-geo-card__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.login-geo-card__title strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.login-geo-card__mark {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  border: 6px solid #e9faef;
+  border-radius: 50%;
+  outline: 1px solid var(--zxh-color-success);
+  outline-offset: -6px;
+  background: #fff;
+}
+
+.login-geo-card__period {
+  display: block;
+  margin-top: 12px;
+  color: var(--zxh-color-text-tertiary);
+  font-size: 11px;
+}
+
+.login-geo-card__chart {
+  display: block;
+  width: 100%;
+  height: 42px;
+  margin-top: 4px;
+  overflow: visible;
+}
+
+.login-geo-card__chart-area {
+  fill: rgba(82, 196, 111, 0.1);
+}
+
+.login-geo-card__chart-line {
+  fill: none;
+  stroke: var(--zxh-color-success);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.login-geo-card__chart-point {
+  fill: var(--zxh-color-success);
+  stroke: #fff;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.login-geo-card__caption {
+  color: var(--zxh-color-success);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.login-generation-card {
+  position: absolute;
+  bottom: 1%;
+  left: 8%;
+  z-index: 5;
+  width: 72%;
+  padding: 14px 16px 16px;
+  border-radius: var(--zxh-radius-xl);
+}
+
+.login-generation-card::after {
+  position: absolute;
+  right: -15%;
+  bottom: 15%;
+  width: 12px;
+  height: 12px;
+  background: rgba(229, 57, 53, 0.35);
+  content: '';
+  pointer-events: none;
+  transform: rotate(45deg);
+}
+
+.login-art-image--fallback {
+  background:
+    linear-gradient(135deg, rgba(229, 57, 53, 0.08), rgba(255, 255, 255, 0.94)),
+    var(--zxh-color-brand-soft);
+}
+
+.login-form-area {
+  display: grid;
+  min-width: 0;
+  min-height: 760px;
+  padding: clamp(64px, 10vh, 104px) clamp(32px, 5vw, 72px) 64px;
+  align-items: start;
+  justify-items: center;
+  background: var(--zxh-color-surface);
+}
+
+.login-card {
+  width: min(590px, 100%);
+  padding: 58px 82px 64px;
+  border: 1px solid var(--zxh-color-border);
+  border-radius: var(--zxh-radius-lg);
+  background: var(--zxh-color-surface);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.login-card > .ant-typography {
+  margin: 0 0 36px;
+  text-align: center;
+  font-size: 28px;
+}
+
+.login-card__tab {
+  position: relative;
+  margin-bottom: 30px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--zxh-color-border);
+  color: var(--zxh-color-brand);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.login-card__tab::after {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 118px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--zxh-color-brand);
+  content: '';
+}
+
+.login-card__alert {
+  margin-bottom: 20px;
+}
+
+.login-form .ant-form-item {
+  margin-bottom: 24px;
+}
+
+.login-form .ant-input-affix-wrapper,
+.login-form .ant-input {
+  min-height: 48px;
+}
+
+.login-form .ant-input-affix-wrapper .ant-input {
+  min-height: 0;
+}
+
+.login-form__submit {
+  height: 48px;
+  margin-top: 4px;
+}
+
+@media (max-width: 1360px) {
+  .login-card {
+    padding-right: 64px;
+    padding-left: 64px;
+  }
+}
+
+@media (max-height: 900px) {
+  .login-hero__inner {
+    padding-top: 90px;
+  }
+
+  .login-hero__visual {
+    width: min(560px, calc(100% - 64px));
+    margin-top: 16px;
+  }
+
+  .login-form-area {
+    padding-top: 80px;
+  }
+
+  .login-card {
+    padding-top: 50px;
+    padding-bottom: 56px;
+  }
+}
+
+@media (max-height: 820px) {
+  .login-hero__inner {
+    padding-top: 56px;
+  }
+
+  .login-hero__intro .ant-typography {
+    margin-top: 16px;
+  }
+
+  .login-hero__visual {
+    width: min(540px, calc(100% - 64px));
+    margin-top: 16px;
+  }
+
+  .login-form-area {
+    padding-top: 52px;
+  }
+
+  .login-card {
+    padding-top: 46px;
+    padding-bottom: 52px;
+  }
+}

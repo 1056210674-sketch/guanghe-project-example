@@ -1,0 +1,23 @@
+[Unit]
+Description=Zhixiaohe OpenTelemetry Collector (test)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=zhixiaohe-otel
+Group=zhixiaohe-otel
+EnvironmentFile=-/etc/zhixiaohe/langfuse-otel.env
+LoadCredential=otel-config:/etc/zhixiaohe/otel-collector-test.yaml
+ExecStart=/usr/local/bin/otelcol-contrib --config=${CREDENTIALS_DIRECTORY}/otel-config
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/zhixiaohe-otel
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

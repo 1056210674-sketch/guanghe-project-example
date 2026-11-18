@@ -1,0 +1,116 @@
+.page-loading,
+.state-surface,
+.standalone-state {
+  display: grid;
+  min-height: 100vh;
+  padding: 40px;
+  place-items: center;
+  background: var(--zxh-color-canvas);
+}
+
+.app-shell__content .state-surface,
+.admin-content .state-surface {
+  min-height: calc(100vh - var(--zxh-header-height) - 48px);
+  padding: 0;
+}
+
+.page-loading__card,
+.state-card {
+  width: 398px;
+  min-height: 300px;
+  border-color: var(--zxh-color-border);
+  box-shadow: var(--zxh-shadow-medium);
+}
+
+.page-loading__card .ant-card-body {
+  display: flex;
+  min-height: 300px;
+  flex-direction: column;
+  padding: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.page-loading__card .ant-skeleton {
+  width: 100%;
+}
+
+.state-card .ant-card-body {
+  display: flex;
+  min-height: 300px;
+  flex-direction: column;
+  padding: 38px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.state-card__icon {
+  display: grid;
+  width: 74px;
+  height: 74px;
+  margin-bottom: 18px;
+  place-items: center;
+  border-radius: 24px;
+  color: var(--zxh-color-brand);
+  background: var(--zxh-color-brand-soft);
+  font-size: 42px;
+}
+
+.state-card h3.ant-typography {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.state-card .ant-typography-secondary {
+  margin-bottom: 12px;
+}
+
+.state-card__action {
+  margin-top: 18px;
+}
+
+.state-card__action .ant-btn {
+  min-width: 128px;
+}
+
+.trace-id {
+  justify-content: center;
+  font-size: 12px;
+}
+
+.trace-id .ant-typography {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.login-card .trace-id {
+  justify-content: flex-start;
+}
+
+.empty-state {
+  display: grid;
+  min-height: 280px;
+  padding: 40px 24px;
+  place-items: center;
+}
+
+.empty-state .ant-empty {
+  margin: 0;
+}
+
+.empty-state__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: center;
+}
+
+.empty-state__copy .ant-typography {
+  margin: 0;
+}
+
+.empty-state .ant-empty-footer {
+  margin-top: 20px;
+}

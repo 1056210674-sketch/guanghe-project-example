@@ -1,0 +1,543 @@
+.image-creator {
+  --image-creator-gap: 14px;
+  display: flex;
+  min-height: calc(100vh - var(--zxh-header-height) - 48px);
+  flex-direction: column;
+  gap: 14px;
+}
+
+.image-creator-heading {
+  display: flex;
+  min-height: 42px;
+  align-items: baseline;
+  gap: 22px;
+}
+
+.image-creator-heading h1.ant-typography {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 40px;
+}
+
+.image-creator-heading > .ant-typography {
+  font-size: 14px;
+}
+
+.image-creator-layout {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: minmax(350px, 388px) minmax(430px, 1fr) minmax(232px, 252px);
+  gap: var(--image-creator-gap);
+}
+
+.image-creator-layout .ant-card {
+  border-color: var(--zxh-color-border);
+  box-shadow: var(--zxh-shadow-light);
+}
+
+.image-creator-layout .ant-card-head {
+  min-height: 48px;
+  padding: 0 14px;
+}
+
+.image-creator-layout .ant-card-head-title {
+  padding: 13px 0;
+  font-size: 16px;
+}
+
+.image-creator-config,
+.image-creator-main,
+.image-creator-rail {
+  min-width: 0;
+}
+
+.image-creator-config .ant-card-body {
+  display: flex;
+  padding: 14px;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.image-creator-modes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.image-creator-modes button {
+  display: flex;
+  min-width: 0;
+  height: 66px;
+  padding: 8px 4px;
+  border: 1px solid var(--zxh-color-border);
+  border-radius: var(--zxh-radius-md);
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+  color: var(--zxh-color-text-secondary);
+  background: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  transition:
+    border-color var(--zxh-motion-fast) var(--zxh-easing),
+    color var(--zxh-motion-fast) var(--zxh-easing),
+    background var(--zxh-motion-fast) var(--zxh-easing);
+}
+
+.image-creator-modes button .anticon {
+  color: var(--zxh-color-text-primary);
+  font-size: 22px;
+}
+
+.image-creator-modes button:hover:not(:disabled),
+.image-creator-modes button.is-active {
+  border-color: var(--zxh-color-brand);
+  color: var(--zxh-color-brand);
+  background: var(--zxh-color-brand-soft);
+}
+
+.image-creator-modes button.is-active .anticon {
+  color: var(--zxh-color-brand);
+}
+
+.image-creator-modes button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.image-creator-field {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 76px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.image-creator-field > label {
+  color: var(--zxh-color-text-secondary);
+  font-size: 13px;
+}
+
+.image-creator-field .ant-select {
+  width: 100%;
+}
+
+.image-creator-select-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.image-creator-field--references,
+.image-creator-field--description {
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.image-creator-field--references > label,
+.image-creator-field--description > label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.image-creator-reference-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.image-creator-reference,
+.image-creator-upload-trigger {
+  position: relative;
+  min-width: 0;
+  height: 112px;
+  overflow: hidden;
+  border-radius: var(--zxh-radius-md);
+}
+
+.image-creator-reference {
+  border: 1px solid var(--zxh-color-border);
+  background: #f1f3f5;
+}
+
+.image-creator-reference img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-creator-reference__status {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: #fff;
+  background: var(--zxh-color-success);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.image-creator-reference > button {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: grid;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  place-items: center;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.56);
+  cursor: pointer;
+}
+
+.image-creator-upload-trigger {
+  display: flex;
+  border: 1px dashed #cfd2d8;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--zxh-color-text-secondary);
+  background: #fff;
+  cursor: pointer;
+}
+
+.image-creator-upload-trigger:hover {
+  border-color: var(--zxh-color-brand);
+  color: var(--zxh-color-brand);
+}
+
+.image-creator-upload-trigger .anticon {
+  font-size: 19px;
+}
+
+.image-creator-file-input {
+  display: none;
+}
+
+.image-creator-parameter-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 12px;
+}
+
+.image-creator-parameter-grid .image-creator-field {
+  grid-template-columns: 52px minmax(0, 1fr);
+}
+
+.image-creator-field--description textarea.ant-input {
+  min-height: 68px;
+  resize: none;
+}
+
+.image-creator-field--scene {
+  /* Ant Design places the character count below the textarea without reserving space. */
+  padding-bottom: 1.75em;
+}
+
+.image-creator-config__footer {
+  display: flex;
+  min-height: 58px;
+  padding-top: 12px;
+  border-top: 1px solid var(--zxh-color-border);
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.image-creator-config__footer > span {
+  display: flex;
+  color: var(--zxh-color-text-secondary);
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12px;
+}
+
+.image-creator-config__footer strong,
+.image-creator-confirmation__credits {
+  color: var(--zxh-color-text-primary);
+  font-size: 14px;
+}
+
+.image-creator-config__footer .anticon,
+.image-creator-confirmation__credits .anticon {
+  color: #f7b500;
+}
+
+.image-creator-config__footer .ant-btn {
+  min-width: 148px;
+}
+
+.image-creator-main,
+.image-creator-rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--image-creator-gap);
+}
+
+.image-creator-preview {
+  flex: 1 1 auto;
+}
+
+.image-creator-preview .ant-card-body {
+  display: flex;
+  min-height: 498px;
+  padding: 14px;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.image-creator-preview-stage {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.image-creator-preview-cell {
+  display: grid;
+  min-height: 400px;
+  overflow: hidden;
+  border-radius: var(--zxh-radius-md);
+  place-items: center;
+  background: #f5f5f2;
+}
+
+.image-creator-preview-cell--result {
+  border: 1px dashed #c9ccd2;
+  background: #fff;
+}
+
+.image-creator-preview-cell > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.image-creator-preview-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  color: #a8abb2;
+  text-align: center;
+}
+
+.image-creator-preview-placeholder .anticon {
+  font-size: 44px;
+}
+
+.image-creator-preview-placeholder span {
+  font-size: 13px;
+}
+
+.image-creator-preview-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.image-creator-history {
+  flex: 0 0 206px;
+}
+
+.image-creator-history .ant-card-body {
+  display: grid;
+  min-height: 150px;
+  padding: 12px;
+  place-items: center;
+}
+
+.image-creator-history__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.image-creator-history ul {
+  display: grid;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  list-style: none;
+}
+
+.image-creator-history li {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.image-creator-history__thumb {
+  display: grid;
+  height: 104px;
+  overflow: hidden;
+  border-radius: var(--zxh-radius-md);
+  place-items: center;
+  color: #a8abb2;
+  background: #f3f4f6;
+}
+
+.image-creator-history__thumb span {
+  padding: 8px;
+  color: var(--zxh-color-text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.image-creator-history__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-creator-suggestions {
+  flex: 1 1 auto;
+}
+
+.image-creator-suggestions .ant-card-body {
+  display: flex;
+  padding: 14px;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.image-creator-suggestions section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.image-creator-suggestions ul {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--zxh-color-text-secondary);
+  font-size: 12px;
+  list-style: none;
+}
+
+.image-creator-suggestions ul li {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  line-height: 1.55;
+}
+
+.image-creator-suggestions ul .anticon {
+  margin-top: 3px;
+  color: var(--zxh-color-success);
+}
+
+.image-creator-suggestion-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.image-creator-suggestion-tags .ant-tag {
+  margin: 0;
+  border: 0;
+  background: #f4f5f7;
+}
+
+.image-creator-suggestions .image-creator-notes {
+  padding-left: 16px;
+  list-style: disc;
+}
+
+.image-creator-confirmation {
+  flex: 0 0 auto;
+}
+
+.image-creator-confirmation .ant-card-extra {
+  color: var(--zxh-color-text-secondary);
+}
+
+.image-creator-confirmation .ant-card-body {
+  padding: 14px;
+}
+
+.image-creator-confirmation .ant-alert {
+  margin-bottom: 12px;
+}
+
+.image-creator-confirmation dl {
+  display: flex;
+  margin: 0;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.image-creator-confirmation dl > div {
+  display: grid;
+  grid-template-columns: 68px minmax(0, 1fr);
+  gap: 8px;
+  font-size: 12px;
+}
+
+.image-creator-confirmation dt {
+  color: var(--zxh-color-text-secondary);
+}
+
+.image-creator-confirmation dd {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: var(--zxh-color-text-primary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.image-creator-confirmation__actions {
+  display: grid;
+  margin-top: 18px;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 10px;
+}
+
+.image-creator-live-state {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+}
+
+.image-creator-live-state > .ant-empty {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 1499px) {
+  .image-creator-layout {
+    grid-template-columns: minmax(330px, 370px) minmax(0, 1fr);
+  }
+
+  .image-creator-rail {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 330px;
+  }
+
+  .image-creator-suggestions .ant-card-body {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+}

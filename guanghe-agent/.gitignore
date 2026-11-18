@@ -1,0 +1,15 @@
+.venv/
+.idea/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+evals/reports/
+.wan-video-gate-state*.json
+.wan-video-gate-state*.json.*.tmp
+.pyright/
+.env
+.env.*
+!.env.example

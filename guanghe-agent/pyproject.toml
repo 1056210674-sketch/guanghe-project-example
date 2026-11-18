@@ -1,0 +1,67 @@
+[project]
+name = "guanghe-agent"
+version = "0.1.0"
+description = "Guanghe AI bounded Agent API and worker runtime"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "aio-pika==10.0.1",
+    "fastapi[standard]==0.141.1",
+    "httpx==0.28.1",
+    "jsonschema==4.25.1",
+    "markdown-it-py==4.2.0",
+    "opentelemetry-exporter-otlp-proto-http==1.44.0",
+    "opentelemetry-sdk==1.44.0",
+    "pydantic-settings==2.15.0",
+    "pyyaml==6.0.3",
+    "redis==8.1.0",
+]
+
+[dependency-groups]
+dev = [
+    "httpx2==2.12.0",
+    "pyright==1.1.411",
+    "pytest==9.1.1",
+    "ruff==0.16.4",
+]
+
+[project.scripts]
+guanghe-agent-api = "app.cli:run_api"
+guanghe-agent-worker = "app.workers.main:run_worker"
+
+[tool.uv]
+package = true
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["ASYNC", "B", "E", "F", "I", "RUF", "SIM", "UP"]
+allowed-confusables = ["，", "；", "？"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+[tool.pyright]
+include = ["app", "evals", "tests"]
+exclude = [".venv"]
+pythonVersion = "3.12"
+venvPath = "."
+venv = ".venv"
+typeCheckingMode = "strict"
+reportMissingTypeStubs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-config", "--strict-markers"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"contracts" = "contracts"

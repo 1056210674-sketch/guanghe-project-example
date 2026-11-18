@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="360" viewBox="0 0 1280 360" role="img" aria-labelledby="title desc">
+  <title id="title">光禾AI智能体框架</title>
+  <desc id="desc">Guanghe AI Agent Framework — GEO, content creation and enterprise AI. www.guangheai.com</desc>
+  <rect width="1280" height="360" rx="24" fill="#141416"/>
+  <defs><clipPath id="banner"><rect width="1280" height="360" rx="24"/></clipPath></defs>
+  <g clip-path="url(#banner)">
+  <path d="M930 0h350v360H785z" fill="#E53935"/>
+  <path d="M1080 0h200v360H935z" fill="#F04E48"/>
+  </g>
+  <g font-family="Arial, 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif">
+    <text x="64" y="66" fill="#F28A85" font-size="18" letter-spacing="4">GUANGHE AI / OPEN SOURCE</text>
+    <text x="60" y="150" fill="#FFFFFF" font-size="52" font-weight="700">光禾AI智能体框架</text>
+    <text x="64" y="196" fill="#DEDEE3" font-size="26">Guanghe AI Agent Framework</text>
+    <text x="64" y="258" fill="#B5B5BD" font-size="19">GEO · Content Creation · Enterprise AI</text>
+    <text x="64" y="310" fill="#FFFFFF" font-size="19">www.guangheai.com</text>
+    <text x="1040" y="171" fill="#FFFFFF" font-size="76" font-weight="700">AI</text>
+    <text x="1006" y="222" fill="#FFFFFF" font-size="18" letter-spacing="2">BUILD WITH</text>
+    <text x="1006" y="250" fill="#FFFFFF" font-size="18" letter-spacing="2">GUANGHE</text>
+  </g>
+</svg>

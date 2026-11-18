@@ -1,0 +1,28 @@
+.geo-period-report-form { display: grid; gap: 12px; }
+.geo-period-report-form__dates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.geo-period-report-form .ant-form-item { margin-bottom: 18px; }
+.geo-period-report-form__history { border-top: 1px solid #e8e8e8; padding-top: 16px; }
+.geo-period-report-form__history ul { margin: 8px 0 0; padding: 0; list-style: none; }
+.geo-period-report-form__history li { display: grid; gap: 2px; margin: 8px 0; }
+.geo-period-report-form__history .ant-btn { height: auto; padding: 0; justify-self: start; white-space: normal; text-align: left; }
+.geo-period-report-form__history .ant-typography { font-size: 12px; }
+.geo-period-report { display: grid; gap: 22px; min-width: 0; color: var(--zxh-text-primary, #202124); }
+.geo-period-report__actions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.geo-period-report__heading h1 { margin: 8px 0 12px; font-size: 26px; line-height: 1.4; overflow-wrap: anywhere; }
+.geo-period-report__heading p { margin: 0; line-height: 1.8; color: var(--zxh-text-secondary, #727781); }
+.geo-period-report__metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; }
+.geo-period-report__metric { padding: 16px; border: 1px solid var(--zxh-border-color, #e8e8e8); border-radius: 12px; background: #fafafb; }
+.geo-period-report__metric dt { font-size: 13px; color: var(--zxh-text-secondary, #727781); }
+.geo-period-report__metric dd { margin: 6px 0 0; font-size: 25px; font-weight: 600; }
+.geo-period-report__section { min-width: 0; }
+.geo-period-report__section h2 { margin: 0 0 14px; font-size: 18px; }
+.geo-period-report__section h3 { margin: 16px 0 8px; font-size: 15px; }
+.geo-period-report__chart { width: 100%; height: auto; display: block; overflow: visible; }
+.geo-period-report__table-wrap { max-width: 100%; overflow-x: auto; }
+.geo-period-report table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.7; }
+.geo-period-report th, .geo-period-report td { border-bottom: 1px solid #e8e8e8; text-align: left; padding: 9px 8px; overflow-wrap: anywhere; }
+.geo-period-report th { color: #727781; font-weight: 500; white-space: nowrap; }
+.geo-period-report__note { margin: 0; color: #727781; font-size: 12px; line-height: 1.8; }
+.geo-period-report__empty { padding: 20px 0; }
+.geo-period-report__sources { margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.9; }
+@media (max-width: 540px) { .geo-period-report-form__dates { grid-template-columns: minmax(0, 1fr); gap: 0; } }

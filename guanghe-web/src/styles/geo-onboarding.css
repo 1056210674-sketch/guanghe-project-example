@@ -1,0 +1,48 @@
+.geo-onboarding {
+  width: min(100%, 720px);
+  min-width: 0;
+  margin: 0 auto;
+  padding: 24px 28px;
+  border: 1px solid var(--zxh-color-border);
+  border-radius: 20px;
+  background: linear-gradient(145deg, #fffaf4 0%, var(--zxh-color-surface) 52%);
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.geo-onboarding__greeting { display: flex; align-items: center; gap: 18px; }
+.geo-onboarding__greeting > .geo-mascot-avatar { flex-shrink: 0; }
+.geo-onboarding__intro { min-width: 0; }
+.geo-onboarding__eyebrow { margin: 0 0 6px; color: var(--zxh-color-text-secondary); font-size: 12px; }
+.geo-onboarding__intro h2 { margin: 0 0 10px; font-size: clamp(22px, 2.2vw, 28px); line-height: 1.4; }
+.geo-onboarding__intro > p:last-child { margin: 0; line-height: 1.8; color: var(--zxh-color-text-secondary); }
+.geo-onboarding__status { display: flex; align-items: center; gap: 10px; margin: 16px 0 0; color: var(--zxh-color-text-secondary); font-size: 13px; }
+.geo-onboarding > .ant-alert { margin-top: 16px; }
+.geo-onboarding__brand { margin: 16px 0 0; font-size: 13px; color: var(--zxh-color-text-secondary); }
+.geo-onboarding__brand strong { color: var(--zxh-color-text-primary); }
+.geo-onboarding__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.geo-onboarding__actions > button { max-width: 100%; height: auto; min-height: 36px; white-space: normal; }
+.geo-onboarding__hint, .geo-onboarding__footnote { margin: 10px 0 0; color: var(--zxh-color-text-secondary); font-size: 12px; line-height: 1.7; }
+.geo-onboarding__footnote { padding-top: 12px; border-top: 1px solid var(--zxh-color-border); }
+
+.geo-onboarding-modal .ant-modal-body { max-height: min(65dvh, 680px); overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; }
+.geo-onboarding-modal__description { margin: 0 0 20px; color: var(--zxh-color-text-secondary); line-height: 1.7; }
+.geo-onboarding-modal__fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px; }
+.geo-onboarding-modal__fields .ant-form-item, .geo-onboarding-modal__extras .ant-form-item { min-width: 0; margin-bottom: 24px; }
+.geo-onboarding-modal .ant-form-item-label > label { white-space: normal; height: auto; }
+.geo-onboarding-modal .ant-input-textarea { max-width: 100%; }
+.geo-onboarding-modal .ant-alert { margin-bottom: 16px; }
+.geo-onboarding-modal__extras { padding-top: 4px; }
+.geo-onboarding-modal__footer { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding-top: 8px; text-align: left; }
+.geo-onboarding-modal__footer > span { flex: 1 1 200px; font-size: 12px; line-height: 1.6; color: var(--zxh-color-text-secondary); }
+.geo-onboarding-modal__footer > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.geo-onboarding-modal__footer > div > button + button { margin-inline-start: 0; }
+
+@media (max-width: 600px) {
+  .geo-onboarding { padding: 20px 16px; border-radius: 16px; }
+  .geo-onboarding__greeting { align-items: flex-start; gap: 10px; }
+  .geo-onboarding__intro h2 { font-size: 22px; }
+  .geo-onboarding__actions { gap: 8px; }
+  .geo-onboarding-modal__fields { grid-template-columns: minmax(0, 1fr); }
+  .geo-onboarding-modal__footer > div { width: 100%; justify-content: flex-end; }
+}

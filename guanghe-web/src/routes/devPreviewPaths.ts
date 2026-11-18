@@ -1,0 +1,18 @@
+export const DEV_PREVIEW_PATHS = {
+  rootPattern: '/preview/*',
+  imageCreation: '/preview/image-creation',
+  videoCreation: '/preview/video-creation',
+  assets: '/preview/assets',
+  articles: '/preview/articles',
+  pointsBilling: '/preview/points-billing',
+  notifications: '/preview/notifications',
+  adminUsers: '/preview/admin/users',
+  adminTasks: '/preview/admin/tasks',
+  adminPricing: '/preview/admin/pricing',
+  adminLedger: '/preview/admin/points-ledger',
+  adminMedia: '/preview/admin/media-submissions',
+  adminInvoices: '/preview/admin/invoices',
+  adminFeedback: '/preview/admin/feedback',
+  adminAudit: '/preview/admin/audit-logs',
+  adminAgentVersions: '/preview/admin/agent-versions',
+} as const

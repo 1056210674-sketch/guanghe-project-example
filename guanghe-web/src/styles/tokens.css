@@ -1,0 +1,49 @@
+:root {
+  font-family: PingFang SC, Microsoft YaHei, sans-serif;
+  color: #1a1a1a;
+  background: #f7f8fa;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+
+  --zxh-color-brand: #e53935;
+  --zxh-color-brand-hover: #f04a46;
+  --zxh-color-brand-active: #c62828;
+  --zxh-color-brand-soft: #fff1f0;
+  --zxh-color-text-primary: #1a1a1a;
+  --zxh-color-text-secondary: #666666;
+  --zxh-color-text-tertiary: #999999;
+  --zxh-color-border: #e5e7eb;
+  --zxh-color-canvas: #f7f8fa;
+  --zxh-color-surface: #ffffff;
+  --zxh-color-success: #22c55e;
+  --zxh-color-warning: #fa8c16;
+  --zxh-color-error: #f53f3f;
+  --zxh-color-info: #1677ff;
+
+  --zxh-space-1: 8px;
+  --zxh-space-2: 16px;
+  --zxh-space-3: 24px;
+  --zxh-space-4: 32px;
+  --zxh-space-5: 40px;
+  --zxh-space-6: 48px;
+  --zxh-space-7: 56px;
+  --zxh-space-8: 64px;
+
+  --zxh-radius-sm: 4px;
+  --zxh-radius-md: 8px;
+  --zxh-radius-lg: 12px;
+  --zxh-radius-xl: 16px;
+
+  --zxh-shadow-light: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --zxh-shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --zxh-shadow-heavy: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+  --zxh-sidebar-width: 224px;
+  --zxh-admin-sidebar-width: 232px;
+  --zxh-header-height: 64px;
+  --zxh-content-max: 1600px;
+  --zxh-motion-fast: 120ms;
+  --zxh-motion-base: 200ms;
+  --zxh-motion-slow: 320ms;
+  --zxh-easing: cubic-bezier(0.2, 0, 0, 1);
+}

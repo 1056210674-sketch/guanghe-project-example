@@ -1,0 +1,24 @@
+# Reviewed deterministic test fixtures only; no directory-wide secret exclusions.
+# Includes fixed HMAC test vectors, trace IDs, idempotency UUIDs and regenerated
+# public-only fixture password hashes. Rescan after any fixture change.
+guanghe-agent/tests/internal_security.py:generic-api-key:21
+guanghe-agent/tests/unit/test_geo_diagnostic_delivery.py:generic-api-key:388
+guanghe-agent/tests/unit/test_workflow_control_plane.py:generic-api-key:302
+guanghe-bankend/src/test/java/com/guanghe/backend/asset/AssetInterfaceIntegrationTests.java:generic-api-key:89
+guanghe-bankend/src/test/java/com/guanghe/backend/article/ArticleInterfaceIntegrationTests.java:generic-api-key:44
+guanghe-bankend/src/test/java/com/guanghe/backend/billing/BillingInterfaceTests.java:generic-api-key:51
+guanghe-bankend/src/test/java/com/guanghe/backend/billing/BillingStage2InterfaceTests.java:generic-api-key:75
+guanghe-bankend/src/test/java/com/guanghe/backend/conversation/context/RunContextInterfaceIntegrationTests.java:generic-api-key:52
+guanghe-bankend/src/test/java/com/guanghe/backend/billing/payment/WeChatNativePaymentProviderTests.java:generic-api-key:45
+guanghe-bankend/src/test/java/com/guanghe/backend/integration/internal/config/InternalCommunicationConfigurationTests.java:generic-api-key:19
+guanghe-bankend/src/test/java/com/guanghe/backend/integration/internal/config/InternalCommunicationConfigurationTests.java:generic-api-key:50
+guanghe-bankend/src/test/java/com/guanghe/backend/media/MediaInterfaceIntegrationTests.java:generic-api-key:46
+guanghe-bankend/src/test/resources/db/testdata/fixed_test_accounts.sql:generic-api-key:67
+guanghe-bankend/src/test/resources/db/testdata/fixed_test_accounts.sql:generic-api-key:82
+guanghe-bankend/src/test/java/com/guanghe/backend/integration/internal/client/PythonInternalClientTests.java:generic-api-key:46
+guanghe-bankend/src/test/java/com/guanghe/backend/integration/internal/client/PythonInternalClientTests.java:generic-api-key:81
+guanghe-bankend/src/test/java/com/guanghe/backend/integration/internal/client/PythonInternalClientTests.java:generic-api-key:126
+guanghe-bankend/src/test/java/com/guanghe/backend/integration/internal/client/PythonInternalClientTests.java:generic-api-key:185
+guanghe-bankend/src/test/java/com/guanghe/backend/integration/internal/client/PythonInternalClientTests.java:generic-api-key:458
+guanghe-bankend/src/test/java/com/guanghe/backend/integration/internal/security/InternalHmacVerificationIntegrationTests.java:generic-api-key:46
+guanghe-bankend/src/test/java/com/guanghe/backend/media/MediaProtocolAndServiceTests.java:generic-api-key:57

@@ -1,0 +1,90 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 127.0.0.1:4317
+      http:
+        endpoint: 127.0.0.1:4318
+
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 128
+    spike_limit_mib: 32
+  attributes/sensitive:
+    actions:
+      - {key: http.request.body, action: delete}
+      - {key: http.response.body, action: delete}
+      - {key: messaging.message.body, action: delete}
+      - {key: url.query, action: delete}
+      - {key: http.url, action: delete}
+      - {key: server.address, action: delete}
+      - {key: gen_ai.input.messages, action: delete}
+      - {key: gen_ai.output.messages, action: delete}
+      - {key: gen_ai.system_instructions, action: delete}
+      - {key: gen_ai.prompt, action: delete}
+      - {key: gen_ai.completion, action: delete}
+      - {key: langfuse.observation.input, action: delete}
+      - {key: langfuse.observation.output, action: delete}
+      - {key: db.statement, action: delete}
+      - {key: db.query.text, action: delete}
+      - {key: http.request.header.authorization, action: delete}
+      - {key: http.response.header.set-cookie, action: delete}
+      - {key: user.id, action: delete}
+      - {key: enduser.id, action: delete}
+  batch/local:
+    send_batch_size: 256
+    timeout: 2s
+  batch/langfuse:
+    send_batch_size: 128
+    timeout: 2s
+  batch/metrics:
+    send_batch_size: 512
+    timeout: 2s
+
+exporters:
+  file:
+    path: /var/lib/zhixiaohe-otel/traces.json
+    rotation:
+      max_megabytes: 32
+      max_days: 7
+      max_backups: 7
+      localtime: true
+    flush_interval: 1s
+  otlphttp/langfuse:
+    endpoint: ${env:LANGFUSE_OTLP_ENDPOINT}
+    headers:
+      Authorization: ${env:LANGFUSE_OTLP_AUTHORIZATION}
+      x-langfuse-ingestion-version: "4"
+    compression: gzip
+    timeout: 5s
+    retry_on_failure:
+      enabled: true
+      initial_interval: 1s
+      max_interval: 10s
+      max_elapsed_time: 60s
+    sending_queue:
+      enabled: true
+      num_consumers: 2
+      queue_size: 512
+  prometheus:
+    endpoint: 127.0.0.1:9464
+    enable_open_metrics: true
+
+service:
+  telemetry:
+    logs:
+      level: warn
+  pipelines:
+    traces/local:
+      receivers: [otlp]
+      processors: [memory_limiter, attributes/sensitive, batch/local]
+      exporters: [file]
+    traces/langfuse:
+      receivers: [otlp]
+      processors: [memory_limiter, attributes/sensitive, batch/langfuse]
+      exporters: [otlphttp/langfuse]
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch/metrics]
+      exporters: [prometheus]

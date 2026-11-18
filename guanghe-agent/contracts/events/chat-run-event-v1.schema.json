@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://guanghe.local/contracts/chat-run-event-v1.schema.json",
+  "title": "Chat Run Event v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "eventId", "eventType", "runId", "occurredAt", "sequence", "payload"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "eventId": {"type": "string", "format": "uuid"},
+    "eventType": {
+      "enum": [
+        "run.started",
+        "run.progress",
+        "message.delta",
+        "interaction.required",
+        "task-draft.proposed",
+        "run.completed",
+        "run.failed",
+        "usage.reported",
+        "heartbeat"
+      ]
+    },
+    "runId": {"type": "string", "format": "uuid"},
+    "occurredAt": {"type": "string", "format": "date-time"},
+    "sequence": {"type": "integer", "minimum": 1},
+    "payload": {"type": "object"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"eventType": {"const": "message.delta"}}, "required": ["eventType"]},
+      "then": {"properties": {"payload": {
+        "type": "object", "additionalProperties": false,
+        "required": ["messageId", "delta"],
+        "properties": {
+          "messageId": {"type": "string", "minLength": 1, "maxLength": 128},
+          "delta": {"type": "string", "maxLength": 16000},
+          "replace": {"type": "boolean", "default": false}
+        },
+        "allOf": [{
+          "if": {"properties": {"replace": {"const": true}}, "required": ["replace"]},
+          "else": {"properties": {"delta": {"minLength": 1}}}
+        }]
+      }}}
+    },
+    {
+      "if": {"properties": {"eventType": {"const": "interaction.required"}}, "required": ["eventType"]},
+      "then": {"properties": {"payload": {"oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["interactionType", "intent", "question", "missingFields", "choices"],
+          "properties": {
+            "interactionType": {"const": "CLARIFICATION"},
+            "intent": {"enum": ["GENERAL", "GEO", "IMAGE", "VIDEO", "ARTICLE", "MEDIA", "AMBIGUOUS_CONFIRMATION"]},
+            "question": {"type": "string"},
+            "missingFields": {"type": "array", "items": {"type": "string"}},
+            "choices": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["interactionType", "candidateSetId", "question"],
+          "properties": {
+            "interactionType": {"const": "RESOURCE_SELECTION"},
+            "candidateSetId": {"type": "string", "pattern": "^[1-9][0-9]{0,18}$"},
+            "question": {"type": "string", "minLength": 1, "maxLength": 4000}
+          }
+        }
+      ]}}}
+    },
+    {
+      "if": {
+        "properties": {"eventType": {"const": "run.completed"}},
+        "required": ["eventType"]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "properties": {
+              "geoContextUsed": {"type": "boolean", "description": "True only for the GEO readonly renderer. Java projects actions from its own frozen authorized Run context; no report ID is accepted here."},
+              "businessOutcome": {"$ref": "#/$defs/businessOutcome"}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"eventType": {"const": "task-draft.proposed"}},
+        "required": ["eventType"]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "properties": {
+              "draftOperation": {"enum": ["NEW", "REVISE"], "default": "NEW"},
+              "previousDraftId": {"type": ["string", "null"], "minLength": 1, "maxLength": 128}
+            },
+            "allOf": [{
+              "if": {"properties": {"draftOperation": {"const": "REVISE"}}, "required": ["draftOperation"]},
+              "then": {"required": ["previousDraftId"], "properties": {"previousDraftId": {"type": "string"}}},
+              "else": {"properties": {"previousDraftId": {"type": "null"}}}
+            }]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"eventType": {"const": "run.progress"}},
+        "required": ["eventType"]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["stageCode", "status", "ordinal", "elapsedMs"],
+            "dependentRequired": {
+              "current": ["total"],
+              "total": ["current"]
+            },
+            "properties": {
+              "stageCode": {
+                "enum": [
+                  "UNDERSTANDING_REQUEST",
+                  "LOADING_BUSINESS_CONTEXT",
+                  "LOADING_PRODUCT_CONTEXT",
+                  "LOADING_REFERENCE_ASSETS",
+                  "ROUTING_INTENT",
+                  "PLANNING_WORKFLOW",
+                  "RUNNING_SAFE_TOOL",
+                  "SEARCHING_WEB",
+                  "PREPARING_TASK_DRAFT",
+                  "COMPOSING_RESPONSE"
+                ]
+              },
+              "status": {"enum": ["RUNNING", "SUCCEEDED", "FAILED"]},
+              "ordinal": {"type": "integer", "minimum": 1, "maximum": 32},
+              "elapsedMs": {"type": "integer", "minimum": 0},
+              "current": {"type": ["integer", "null"], "minimum": 0},
+              "total": {"type": ["integer", "null"], "minimum": 0}
+            },
+            "allOf": [
+              {
+                "if": {"properties": {"current": {"type": "integer"}}},
+                "then": {"properties": {"total": {"type": "integer"}}},
+                "else": {"properties": {"total": {"type": "null"}}}
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "businessOutcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "status"],
+      "properties": {
+        "schemaVersion": {"const": 1},
+        "status": {"enum": ["ANSWERED", "NEEDS_INPUT", "DRAFT_READY", "PARTIAL", "FAILED"]},
+        "reasonCode": {"type": "string", "enum": ["INPUT_REQUIRED", "TASK_DRAFT_PROPOSED", "READONLY_PLANNER_UNAVAILABLE", "READONLY_PLAN_INVALID", "READONLY_EVIDENCE_UNAVAILABLE", "READONLY_PARTIAL_EVIDENCE", "READONLY_SYNTHESIS_UNAVAILABLE", "GEO_CONTEXT_UNAVAILABLE", "TASK_PARAMETERS_INVALID", "TASK_PREPARATION_REJECTED", "RESPONSE_PROTOCOL_INVALID", "AGENT_RUN_FAILED", "DRAFT_VERIFIED"]},
+        "failureStage": {"type": "string", "enum": ["LOOKUP", "PLAN", "TOOL", "SYNTHESIS", "PROTOCOL"]}
+      }
+    }
+  }
+}

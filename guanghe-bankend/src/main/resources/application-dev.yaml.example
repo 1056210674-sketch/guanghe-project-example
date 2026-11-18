@@ -1,0 +1,245 @@
+# This file contains no credentials. Keep passwords in IntelliJ IDEA environment variables
+# or another local secret store; never copy real values into a tracked YAML file.
+spring:
+  config:
+    activate:
+      on-profile: dev
+  flyway:
+    enabled: ${SPRING_FLYWAY_ENABLED:false}
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6380}
+      username: ${REDIS_USERNAME}
+      password: ${REDIS_PASSWORD}
+      ssl:
+        enabled: ${REDIS_SSL_ENABLED:true}
+        bundle: ${REDIS_SSL_BUNDLE:zhixiaohe-test}
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT:5671}
+    virtual-host: ${RABBITMQ_VHOST:/zhixiaohe-test}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    ssl:
+      enabled: ${RABBITMQ_SSL_ENABLED:true}
+      bundle: ${RABBITMQ_SSL_BUNDLE:zhixiaohe-test}
+      validate-server-certificate: true
+      verify-hostname: true
+  quartz:
+    auto-startup: ${QUARTZ_AUTO_STARTUP:false}
+
+management:
+  tracing:
+    sampling:
+      probability: ${OTEL_TRACING_SAMPLING_PROBABILITY:1.0}
+
+zhixiaohe:
+  conversation:
+    workspace-key-prefix: "${REDIS_KEY_PREFIX:zhixiaohe:test:}conversation:workspace:v1:"
+    target-input-tokens: ${CONVERSATION_TARGET_INPUT_TOKENS:128000}
+  id:
+    worker-id: ${SNOWFLAKE_WORKER_ID:0}
+  registration:
+    terms-version: ${REGISTRATION_TERMS_VERSION:dev-terms-v1}
+    privacy-version: ${REGISTRATION_PRIVACY_VERSION:dev-privacy-v1}
+  paid-task:
+    enabled: ${PAID_TASK_ENABLED:false}
+    token-secret: ${TASK_CONTROL_TOKEN_SECRET:}
+    execution-lease: ${TASK_EXECUTION_LEASE:2m}
+    max-queue-age: ${TASK_MAX_QUEUE_AGE:30m}
+    max-execution-attempts: ${TASK_MAX_EXECUTION_ATTEMPTS:2}
+    image-mock-pricing-version-id: ${IMAGE_MOCK_PRICING_VERSION_ID:0}
+    image-mock-points: ${IMAGE_MOCK_POINTS:0}
+    video-test-pricing-version-id: ${VIDEO_TEST_PRICING_VERSION_ID:0}
+    video-test-points: ${VIDEO_TEST_POINTS:0}
+    video-max-provider-calls: ${VIDEO_MAX_PROVIDER_CALLS:61}
+    reference-image-generation-enabled: ${REFERENCE_IMAGE_GENERATION_ENABLED:false}
+    image-to-video-enabled: ${IMAGE_TO_VIDEO_ENABLED:false}
+    geo-execution-enabled: ${GEO_EXECUTION_ENABLED:false}
+    geo-interpretation-enabled: ${GEO_INTERPRETATION_ENABLED:false}
+    geo-test-pricing-version-id: ${GEO_TEST_PRICING_VERSION_ID:0}
+    geo-test-unit-points: ${GEO_TEST_UNIT_POINTS:0}
+    geo-max-provider-calls: ${GEO_MAX_PROVIDER_CALLS:20}
+    geo-max-concurrency: ${GEO_MAX_CONCURRENCY:3}
+    geo-execution-deadline: ${GEO_EXECUTION_DEADLINE:30m}
+    geo-configured-platforms: ${GEO_CONFIGURED_PLATFORMS:}
+    geo-plan-enabled: ${GEO_PLAN_ENABLED:false}
+    geo-plan-min-interval-days: ${GEO_PLAN_MIN_INTERVAL_DAYS:1}
+    geo-plan-max-interval-days: ${GEO_PLAN_MAX_INTERVAL_DAYS:365}
+    outbox-publisher-enabled: ${TASK_OUTBOX_PUBLISHER_ENABLED:false}
+    execution-watchdog-enabled: ${TASK_EXECUTION_WATCHDOG_ENABLED:true}
+    exchange: ${TASK_RABBITMQ_EXCHANGE:zhixiaohe.task}
+    image-routing-key: ${TASK_IMAGE_ROUTING_KEY:agent.image}
+    image-queue: ${TASK_IMAGE_QUEUE:zhixiaohe.agent.image}
+    video-routing-key: ${TASK_VIDEO_ROUTING_KEY:agent.video}
+    video-queue: ${TASK_VIDEO_QUEUE:zhixiaohe.agent.video}
+    geo-routing-key: ${TASK_GEO_ROUTING_KEY:agent.geo}
+    geo-queue: ${TASK_GEO_QUEUE:zhixiaohe.agent.geo}
+    dead-letter-exchange: ${TASK_RABBITMQ_DLX:zhixiaohe.task.dlx}
+    image-dead-letter-queue: ${TASK_IMAGE_DLQ:zhixiaohe.agent.image.dlq}
+    video-dead-letter-queue: ${TASK_VIDEO_DLQ:zhixiaohe.agent.video.dlq}
+    geo-dead-letter-queue: ${TASK_GEO_DLQ:zhixiaohe.agent.geo.dlq}
+  workflow-execution:
+    enabled: ${WORKFLOW_EXECUTION_ENABLED:false}
+    compatible-worker-ready: ${WORKFLOW_COMPATIBLE_WORKER_READY:false}
+    lease: ${WORKFLOW_EXECUTION_LEASE:2m}
+    max-execution-attempts: ${WORKFLOW_MAX_EXECUTION_ATTEMPTS:2}
+    max-replans: ${WORKFLOW_MAX_REPLANS:1}
+    routing-key: ${TASK_WORKFLOW_ROUTING_KEY:agent.workflow}
+    queue: ${TASK_WORKFLOW_QUEUE:zhixiaohe.agent.workflow}
+    dead-letter-queue: ${TASK_WORKFLOW_DLQ:zhixiaohe.agent.workflow.dlq}
+  media:
+    enabled: ${MEDIA_ENABLED:false}
+    execution-enabled: ${MEDIA_SUBMISSION_EXECUTION_ENABLED:false}
+    resource-sync-enabled: ${MEDIA_RESOURCE_SYNC_ENABLED:false}
+    order-poll-enabled: ${MEDIA_ORDER_POLL_ENABLED:false}
+    base-url: ${MEDIA_API_BASE_URL:}
+    app-key: ${MEDIA_API_APP_KEY:}
+    provider-code: ${MEDIA_PROVIDER_CODE:MEDIA_PROCUREMENT}
+    supported-model-ids: ${MEDIA_SUPPORTED_MODEL_IDS:1}
+    connect-timeout: ${MEDIA_API_CONNECT_TIMEOUT:5s}
+    read-timeout: ${MEDIA_API_READ_TIMEOUT:20s}
+    quote-ttl: ${MEDIA_QUOTE_TTL:10m}
+    resource-max-age: ${MEDIA_RESOURCE_MAX_AGE:36h}
+    unknown-poll-delay: ${MEDIA_UNKNOWN_POLL_DELAY:2m}
+    accepted-poll-delay: ${MEDIA_ACCEPTED_POLL_DELAY:10m}
+    sync-page-size: ${MEDIA_SYNC_PAGE_SIZE:100}
+    max-sync-pages: ${MEDIA_MAX_SYNC_PAGES:500}
+  asset:
+    enabled: ${ASSET_INGESTION_ENABLED:false}
+    worker-enabled: ${ASSET_INGESTION_WORKER_ENABLED:false}
+    environment: ${APP_ENVIRONMENT:test}
+    provider-allowed-hosts: ${ASSET_PROVIDER_ALLOWED_HOSTS:}
+    safety-mode: ${ASSET_CONTENT_SAFETY_MODE:TEST_BYPASS}
+    test-bypass-download-enabled: ${ASSET_TEST_BYPASS_DOWNLOAD_ENABLED:false}
+    reference-read-url-ttl: ${ASSET_REFERENCE_READ_URL_TTL:30m}
+    oss:
+      endpoint: ${OSS_ENDPOINT:}
+      region: ${OSS_REGION:}
+      bucket: ${OSS_BUCKET:}
+      access-key-id: ${OSS_ACCESS_KEY_ID:}
+      access-key-secret: ${OSS_ACCESS_KEY_SECRET:}
+  internal:
+    enabled: ${INTERNAL_HMAC_ENABLED:true}
+    java-m1-ready: ${JAVA_M1_READY:false}
+    java-m1-server-ready: ${JAVA_M1_SERVER_READY:false}
+    m0-gate-status: ${M0_GATE:NOT_RUN}
+    key-id: ${INTERNAL_HMAC_KEY_ID:agent-service-v1}
+    secret: ${INTERNAL_HMAC_SECRET}
+    allowed-clock-skew: ${INTERNAL_HMAC_ALLOWED_CLOCK_SKEW:60s}
+    nonce-ttl: ${INTERNAL_HMAC_NONCE_TTL:120s}
+    nonce-key-prefix: "${REDIS_KEY_PREFIX:zhixiaohe:test:}internal:hmac:nonce:"
+    reverse-probe-enabled: ${INTERNAL_REVERSE_PROBE_ENABLED:true}
+    python:
+      base-url: ${AGENT_BASE_URL:http://127.0.0.1:8000}
+      connect-timeout: ${AGENT_CONNECT_TIMEOUT:1s}
+      read-timeout: ${AGENT_READ_TIMEOUT:2s}
+
+# Ordinary development (daily Java work, DML-only role):
+# SPRING_PROFILES_ACTIVE=dev
+# SPRING_FLYWAY_ENABLED=false
+# APP_DB_URL=jdbc:postgresql://<server-public-ip>:5432/zhixiaohe_test?sslmode=require
+# APP_DB_USERNAME=zhixiaohe_test_app
+# APP_DB_PASSWORD=<issued-by-project-owner>
+# JWT_SECRET_BASE64=<base64-of-at-least-32-random-bytes>
+# JWT_ACCESS_TOKEN_TTL_SECONDS=259200
+# ACCOUNT_ACCESS_ENABLED=true
+# ACCOUNT_INITIAL_POINT_GRANT_MAX=10000
+# ACCOUNT_ACTIVATION_TOKEN_TTL=30m
+# LOGIN_MAX_FAILURES=5
+# LOGIN_FAILURE_WINDOW_SECONDS=900
+# REDIS_HOST=<server-public-ip>
+# REDIS_PORT=6380
+# REDIS_USERNAME=zhixiaohe_test_app
+# REDIS_PASSWORD=<issued-by-project-owner>
+# REDIS_SSL_ENABLED=true
+# REDIS_KEY_PREFIX=zhixiaohe:test:
+# RABBITMQ_HOST=<server-public-ip>
+# RABBITMQ_PORT=5671
+# RABBITMQ_VHOST=/zhixiaohe-test
+# RABBITMQ_USERNAME=zhixiaohe_test_app
+# RABBITMQ_PASSWORD=<issued-by-project-owner>
+# RABBITMQ_SSL_ENABLED=true
+# OpenTelemetry is opt-in. The test Collector is loopback-only and exporter failures never fail a request:
+# OTEL_TRACING_ENABLED=true
+# OTEL_TRACING_SAMPLING_PROBABILITY=1.0
+# OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://127.0.0.1:4318/v1/traces
+# OTEL_EXPORTER_CONNECT_TIMEOUT=500ms
+# OTEL_EXPORTER_TIMEOUT=1s
+# OTEL_SERVICE_NAME=zhixiaohe-java
+# APP_GIT_COMMIT=<deployed-full-commit>
+# INTERNAL_HMAC_ENABLED=true
+# INTERNAL_HMAC_KEY_ID=agent-service-v1
+# INTERNAL_HMAC_SECRET=<at-least-32-random-utf8-bytes>
+# INTERNAL_HMAC_ALLOWED_CLOCK_SKEW=60s
+# INTERNAL_HMAC_NONCE_TTL=120s
+# INTERNAL_REVERSE_PROBE_ENABLED=true
+# AGENT_BASE_URL=http://127.0.0.1:8000
+# AGENT_CONNECT_TIMEOUT=1s
+# AGENT_READ_TIMEOUT=2s
+# JAVA_M1_READY=true
+# Paid IMAGE test Gate only (legacy price variable names; not production pricing):
+# PAID_TASK_ENABLED=true
+# TASK_CONTROL_TOKEN_SECRET=<separate-at-least-32-random-utf8-bytes>
+# IMAGE_MOCK_PRICING_VERSION_ID=<positive-Snowflake-style-test-id>
+# IMAGE_MOCK_POINTS=<positive-test-points>
+# VIDEO_TEST_PRICING_VERSION_ID=<positive-Snowflake-style-test-id>
+# VIDEO_TEST_POINTS=<positive-test-points>
+# GEO execution is separately gated until a compatible Python Worker is READY:
+# GEO_EXECUTION_ENABLED=false
+# GEO_TEST_PRICING_VERSION_ID=<positive-Snowflake-style-test-id>
+# GEO_TEST_UNIT_POINTS=1
+# GEO_CONFIGURED_PLATFORMS=DOUBAO,WENXIN
+# GEO_MAX_PROVIDER_CALLS=20
+# GEO_MAX_CONCURRENCY=3
+# GEO_EXECUTION_DEADLINE=30m
+# GEO_PLAN_ENABLED=false
+# GEO_PLAN_MIN_INTERVAL_DAYS=1
+# GEO_PLAN_MAX_INTERVAL_DAYS=365
+# ARTICLE execution remains disabled until a compatible Python Worker is deployed:
+# ARTICLE_EXECUTION_ENABLED=false
+# ARTICLE_TEST_PRICING_VERSION_ID=<positive-Snowflake-style-test-id>
+# ARTICLE_TITLE_TEST_POINTS=<positive-test-points>
+# ARTICLE_OUTLINE_TEST_POINTS=<positive-test-points>
+# ARTICLE_BODY_TEST_POINTS=<positive-test-points>
+# ARTICLE_REWRITE_TEST_POINTS=<positive-test-points>
+# ARTICLE_MAX_MODEL_CALLS=2
+# ARTICLE_MAX_REPAIR_RETRIES=1
+# ARTICLE_MAX_INPUT_TOKENS=128000
+# ARTICLE_MAX_OUTPUT_TOKENS=16000
+# ARTICLE_EXECUTION_DEADLINE=10m
+# TASK_OUTBOX_PUBLISHER_ENABLED=true
+# Permanent generated-asset ingestion (test environment only):
+# ASSET_INGESTION_ENABLED=true
+# ASSET_INGESTION_WORKER_ENABLED=true
+# APP_ENVIRONMENT=test
+# ASSET_PROVIDER_ALLOWED_HOSTS=<comma-separated-trusted-provider-hosts>
+# ASSET_PROVIDER_CONNECT_TIMEOUT=5s
+# ASSET_PROVIDER_READ_TIMEOUT=20s
+# ASSET_PROVIDER_TOTAL_TIMEOUT=30s
+# ASSET_PROVIDER_MAX_REDIRECTS=2
+# ASSET_INGESTION_MAX_ATTEMPTS=3
+# ASSET_INGESTION_LEASE=2m
+# ASSET_INGESTION_RETRY_DELAY=10s
+# ASSET_TEMP_DIRECTORY=<service-owned-temporary-directory>
+# ASSET_CONTENT_SAFETY_MODE=TEST_BYPASS
+# ASSET_TEST_BYPASS_DOWNLOAD_ENABLED=true
+# OSS_ENDPOINT=https://<oss-endpoint>
+# OSS_REGION=<oss-region>
+# OSS_BUCKET=<oss-bucket>
+# OSS_ACCESS_KEY_ID=<issued-by-project-owner>
+# OSS_ACCESS_KEY_SECRET=<issued-by-project-owner>
+# ASSET_SIGNED_URL_TTL=5m
+# ASSET_MAX_IMAGE_BYTES=20971520
+# TEST_BYPASS is not a real content-safety approval and is rejected outside APP_ENVIRONMENT=test.
+# No FLYWAY_DB_* variable is required in this mode.
+# Port, VHost, Snowflake and agreement-version variables above have development defaults and remain overridable.
+
+# Migration mode (designated personnel only):
+# SPRING_PROFILES_ACTIVE=dev
+# SPRING_FLYWAY_ENABLED=true
+# FLYWAY_DB_URL=jdbc:postgresql://<server-public-ip>:5432/zhixiaohe_test?sslmode=require
+# FLYWAY_DB_USERNAME=zhixiaohe_test_flyway
+# FLYWAY_DB_PASSWORD=<held-by-project-owner>
+# APP_DB_* remains the runtime pool identity; never set it to the Flyway role.

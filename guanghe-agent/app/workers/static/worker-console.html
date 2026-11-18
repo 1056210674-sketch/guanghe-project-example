@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>光禾AI智能体框架 Worker 控制台</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, "Microsoft YaHei", sans-serif; }
+    body { margin: 0; background: #0b1220; color: #e5edf8; }
+    main { max-width: 980px; margin: 36px auto; padding: 0 20px; }
+    .card { background: #121d31; border: 1px solid #263653; border-radius: 14px; padding: 20px; margin: 16px 0; }
+    h1 { margin-bottom: 6px; } p { color: #9eb0c8; } a { color: #7da8ff; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    select, textarea, button { border-radius: 9px; border: 1px solid #344866; padding: 10px 12px; color: #e5edf8; background: #0c1628; }
+    textarea { width: 100%; min-height: 88px; box-sizing: border-box; }
+    button { background: #2f6fed; border-color: #2f6fed; cursor: pointer; font-weight: 700; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; color: #b9cdf0; }
+    #preview img, #preview video { display: block; max-width: 100%; max-height: 560px; margin-top: 14px; border-radius: 10px; }
+    .warning { color: #fbbf24; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Worker 开发控制台</h1>
+  <p>这是独立 Worker 进程的本地验收入口。Provider 模式以状态区为准；REAL 模式会调用真实付费接口，但仍不代表 Java 正式业务成功。<a href="http://127.0.0.1:8000/dev/agent">返回 Agent 控制台</a></p>
+  <section class="card"><h2>进程状态</h2><pre id="workerStatus">加载中…</pre></section>
+  <section class="card">
+    <h2>投递本地任务</h2>
+    <div class="row">
+      <label>领域 <select id="taskType"><option>IMAGE</option><option>VIDEO</option><option>GEO</option><option>ARTICLE</option></select></label>
+      <button id="submit">投递</button>
+    </div>
+    <p>参数只存在于 local/test 的内存 Java Stub；正式 Rabbit 消息不会携带正文或 Prompt。</p>
+    <p class="warning">切换到 REAL 前请确认模型、额度和地域；真实图片、视频请求可能计费。</p>
+    <textarea id="parameters">{"scene":"厨房台面","aspectRatio":"1:1"}</textarea>
+  </section>
+  <section class="card"><h2>最近任务</h2><pre id="taskStatus">尚未投递</pre><div id="preview"></div></section>
+</main>
+<script>
+const workerStatus = document.querySelector('#workerStatus');
+const taskStatus = document.querySelector('#taskStatus');
+const preview = document.querySelector('#preview');
+const render = (node, value) => node.textContent = JSON.stringify(value, null, 2);
+function renderArtifacts(payload) {
+  preview.replaceChildren();
+  for (const artifact of payload.artifacts || []) {
+    if (!artifact.providerUrl) continue;
+    let media;
+    if (artifact.artifactType === 'IMAGE') media = document.createElement('img');
+    if (artifact.artifactType === 'VIDEO') {
+      media = document.createElement('video'); media.controls = true;
+    }
+    if (!media) continue;
+    media.src = artifact.providerUrl; media.alt = artifact.artifactType;
+    preview.append(media);
+  }
+}
+async function refreshWorker() {
+  const response = await fetch('/internal/v1/worker/status');
+  render(workerStatus, await response.json());
+}
+async function pollTask(url) {
+  for (let index = 0; index < 900; index++) {
+    const response = await fetch(url);
+    const payload = await response.json();
+    render(taskStatus, payload);
+    renderArtifacts(payload);
+    if (['RESULT_READY','FAILED','SUBMISSION_UNKNOWN','DUPLICATE','REJECTED'].includes(payload.status)) return;
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+}
+document.querySelector('#submit').addEventListener('click', async () => {
+  try {
+    const parameters = JSON.parse(document.querySelector('#parameters').value || '{}');
+    const response = await fetch('/dev/v1/tasks', {
+      method: 'POST', headers: {'content-type':'application/json'},
+      body: JSON.stringify({taskType: document.querySelector('#taskType').value, parameters})
+    });
+    const payload = await response.json();
+    render(taskStatus, payload);
+    if (!response.ok) return;
+    await pollTask(payload.statusUrl);
+    await refreshWorker();
+  } catch (error) { render(taskStatus, {status:'CLIENT_ERROR', message:String(error)}); }
+});
+refreshWorker(); setInterval(refreshWorker, 3000);
+</script>
+</body>
+</html>

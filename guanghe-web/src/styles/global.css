@@ -1,0 +1,84 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-width: 1280px;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--zxh-color-text-primary);
+  background: var(--zxh-color-canvas);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.brand__logo-frame {
+  display: block;
+  width: 48px;
+  height: 48px;
+  overflow: hidden;
+  flex: 0 0 48px;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.brand__logo {
+  display: block;
+  width: 114%;
+  height: 114%;
+  margin: -7%;
+  object-fit: cover;
+}
+
+.brand__name {
+  overflow: hidden;
+  color: var(--zxh-color-text-primary);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32px;
+  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.brand--compact .brand__logo-frame {
+  width: 40px;
+  height: 40px;
+  flex-basis: 40px;
+  border-radius: 9px;
+}
+
+.brand--compact .brand__name {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

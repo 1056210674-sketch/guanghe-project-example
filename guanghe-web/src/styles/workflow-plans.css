@@ -1,0 +1,137 @@
+.workflow-plan-workspace,
+.workflow-plan-detail {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--zxh-space-3);
+}
+
+.workflow-plan-heading,
+.workflow-plan-detail-heading,
+.workflow-plan-step-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--zxh-space-2);
+}
+
+.workflow-plan-heading h1.ant-typography,
+.workflow-plan-detail-heading h3.ant-typography {
+  margin: 0 0 6px;
+}
+
+.workflow-plan-list-card,
+.workflow-plan-step {
+  border-color: var(--zxh-color-border);
+  box-shadow: var(--zxh-shadow-light);
+}
+
+.workflow-plan-list-card > .ant-card-body {
+  padding: 0;
+}
+
+.workflow-plan-filter {
+  display: flex;
+  padding: var(--zxh-space-2) var(--zxh-space-3);
+  border-bottom: 1px solid var(--zxh-color-border);
+}
+
+.workflow-plan-filter .ant-select {
+  width: 220px;
+}
+
+.workflow-plan-list-body .ant-table-wrapper {
+  padding: 0 var(--zxh-space-3) var(--zxh-space-2);
+}
+
+.workflow-plan-list-body > .page-loading,
+.workflow-plan-list-body > .state-surface,
+.workflow-plan-list-body > .empty-state {
+  min-height: 420px;
+}
+
+.workflow-plan-goal,
+.workflow-plan-section,
+.workflow-plan-step,
+.workflow-plan-task-projection,
+.workflow-plan-event-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.workflow-plan-goal,
+.workflow-plan-step,
+.workflow-plan-task-projection {
+  gap: 8px;
+}
+
+.workflow-plan-section {
+  gap: 12px;
+}
+
+.workflow-plan-section h4.ant-typography {
+  margin: 0;
+}
+
+.workflow-plan-budget {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.workflow-plan-budget .ant-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.workflow-plan-steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.workflow-plan-criteria {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--zxh-color-text-secondary);
+}
+
+.workflow-plan-actions {
+  position: sticky;
+  bottom: 0;
+  padding: var(--zxh-space-2) 0;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.workflow-confirmation-dialog-body,
+.workflow-confirmation-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zxh-space-2);
+}
+
+.workflow-confirmation-summary h5.ant-typography,
+.workflow-confirmation-summary .ant-typography,
+.workflow-confirmation-summary ol {
+  margin: 0;
+}
+
+.workflow-confirmation-summary ol {
+  padding-left: 22px;
+  color: var(--zxh-color-text-secondary);
+}
+
+.workflow-confirmation-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--zxh-space-1);
+}
+
+@media (max-width: 1360px) {
+  .workflow-plan-budget,
+  .workflow-plan-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

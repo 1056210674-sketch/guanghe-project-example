@@ -1,0 +1,51 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+  flyway:
+    enabled: ${SPRING_FLYWAY_ENABLED:false}
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6380}
+      username: ${REDIS_USERNAME}
+      password: ${REDIS_PASSWORD}
+      ssl:
+        enabled: ${REDIS_SSL_ENABLED:true}
+        bundle: ${REDIS_SSL_BUNDLE:zhixiaohe-test}
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT:5671}
+    virtual-host: ${RABBITMQ_VHOST:/zhixiaohe-test}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    ssl:
+      enabled: ${RABBITMQ_SSL_ENABLED:true}
+      bundle: ${RABBITMQ_SSL_BUNDLE:zhixiaohe-test}
+      validate-server-certificate: true
+      verify-hostname: true
+  quartz:
+    # V001/V002 do not create Quartz tables yet. Opt in only after its migration is reviewed.
+    auto-startup: ${QUARTZ_AUTO_STARTUP:false}
+
+management:
+  tracing:
+    sampling:
+      # Test environments intentionally sample all traces; base/local remains conservative and opt-in.
+      probability: ${OTEL_TRACING_SAMPLING_PROBABILITY:1.0}
+
+zhixiaohe:
+  conversation:
+    workspace-key-prefix: "${REDIS_KEY_PREFIX:zhixiaohe:test:}conversation:workspace:v1:"
+    target-input-tokens: ${CONVERSATION_TARGET_INPUT_TOKENS:128000}
+  auth:
+    login-rate-limit:
+      key-prefix: ${REDIS_KEY_PREFIX:zhixiaohe:test:}
+  id:
+    worker-id: ${SNOWFLAKE_WORKER_ID:0}
+  registration:
+    terms-version: ${REGISTRATION_TERMS_VERSION:dev-terms-v1}
+    privacy-version: ${REGISTRATION_PRIVACY_VERSION:dev-privacy-v1}
+  internal:
+    nonce-key-prefix: "${REDIS_KEY_PREFIX:zhixiaohe:test:}internal:hmac:nonce:"
+    reverse-probe-enabled: ${INTERNAL_REVERSE_PROBE_ENABLED:true}

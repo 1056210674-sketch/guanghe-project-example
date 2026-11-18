@@ -1,0 +1,39 @@
+[Unit]
+Description=Zhixiaohe Java test service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=zhixiaohe-java
+Group=zhixiaohe-java
+WorkingDirectory=/opt/zhixiaohe/java/current
+EnvironmentFile=/etc/zhixiaohe/java-test.env
+Environment=SPRING_PROFILES_ACTIVE=dev
+Environment=SPRING_FLYWAY_ENABLED=false
+Environment=SERVER_ADDRESS=127.0.0.1
+Environment=SERVER_PORT=8080
+Environment=AGENT_BASE_URL=http://127.0.0.1:8000
+Environment=JAVA_M1_READY=true
+Environment=JAVA_M1_SERVER_READY=false
+Environment=M0_GATE=NOT_RUN
+ExecStartPre=/usr/bin/test -r /opt/zhixiaohe/java/current/guanghe-backend.jar
+ExecStart=/usr/bin/java -XX:MaxRAMPercentage=70 -jar /opt/zhixiaohe/java/current/guanghe-backend.jar
+SuccessExitStatus=143
+Restart=on-failure
+RestartSec=5s
+TimeoutStartSec=90s
+TimeoutStopSec=45s
+KillSignal=SIGTERM
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=zhixiaohe-java-test
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+UMask=0077
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

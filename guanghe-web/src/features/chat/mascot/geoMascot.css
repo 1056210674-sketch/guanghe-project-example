@@ -1,0 +1,3 @@
+.chat-conversation__heading { display: grid; min-width: 0; gap: 8px; }
+.chat-workspace--home .chat-conversation__heading { width: 100%; justify-items: center; }
+.geo-pending-reply { color: var(--zxh-color-text-secondary); margin: 0; padding: 14px 0; }

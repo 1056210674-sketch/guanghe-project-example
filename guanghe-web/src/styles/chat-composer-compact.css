@@ -1,0 +1,24 @@
+.chat-composer.chat-composer--compact {
+  flex-shrink: 0;
+  padding: 10px 12px;
+  gap: 8px;
+}
+
+.chat-composer.chat-composer--compact textarea.ant-input {
+  min-height: 28px;
+  padding: 2px 0;
+  line-height: 24px;
+}
+
+.chat-composer.chat-composer--compact .chat-composer__footer {
+  min-height: 32px;
+}
+
+.chat-composer.chat-composer--compact .chat-composer__footer-copy {
+  flex-basis: 0;
+}
+
+.chat-composer.chat-composer--compact .chat-composer__footer-copy > .ant-btn {
+  min-width: 32px;
+  padding-inline: 6px;
+}

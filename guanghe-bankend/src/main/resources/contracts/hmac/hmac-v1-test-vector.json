@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "secret": "test-only-hmac-secret-v1",
+  "timestamp": "1787625000",
+  "nonce": "9ca4ea78-5d80-4e87-8bcb-c0093470c54d",
+  "method": "POST",
+  "rawPathWithQuery": "/internal/v1/tasks/1900012345678901700/claim?attempt=1",
+  "bodyUtf8": "{\"consumerName\":\"worker-v1\",\"eventId\":\"1900012345678906000\"}",
+  "bodySha256": "3651a410796e7ba758b8105b4b5491f2fa7f77b04d60bab297fdf63e59a7a1e1",
+  "signatureBase64": "5blIUdeLgtVAyKlSH6AlO0mxgiNeeHh+1wVUjIaGgUE="
+}

@@ -1,0 +1,11 @@
+.geo-monitor-action-panel { width: 100%; min-width: 0; }
+.geo-monitor-action-panel .ant-space-item, .geo-monitor-action-section { min-width: 0; }
+.geo-monitor-action-section { display: flex; flex-direction: column; gap: 12px; }
+.geo-monitor-action-section + .geo-monitor-action-section { border-top: 1px solid #eee; padding-top: 18px; }
+.geo-monitor-action-section .ant-select { width: 100%; }
+.geo-monitor-action-section .ant-typography { margin-bottom: 0; overflow-wrap: anywhere; }
+.geo-monitor-action-section > label, .geo-monitor-budget-fields label { display: grid; gap: 6px; min-width: 0; }
+.geo-monitor-budget-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.geo-monitor-question-options { display: grid; gap: 8px; max-height: 220px; overflow: auto; }
+.geo-monitor-question-options .ant-checkbox-wrapper { margin-inline-start: 0; overflow-wrap: anywhere; align-items: flex-start; }
+@media (max-width: 520px) { .geo-monitor-budget-fields { grid-template-columns: minmax(0, 1fr); } }

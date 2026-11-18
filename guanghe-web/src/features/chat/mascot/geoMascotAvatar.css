@@ -1,0 +1,116 @@
+.geo-mascot-avatar {
+  --geo-mascot-size: 64px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--geo-mascot-size);
+  height: var(--geo-mascot-size);
+  min-width: var(--geo-mascot-size);
+  flex: 0 0 var(--geo-mascot-size);
+  overflow: clip;
+  box-sizing: border-box;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  appearance: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.geo-mascot-avatar[aria-disabled='true'] {
+  cursor: default;
+}
+
+.geo-mascot-avatar:focus-visible {
+  outline: 2px solid var(--ant-color-primary, #d94a43);
+  outline-offset: 3px;
+}
+
+.geo-mascot-avatar__tilt,
+.geo-mascot-avatar__art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.geo-mascot-avatar__tilt {
+  transform: translate(var(--geo-avatar-x, 0), var(--geo-avatar-y, 0)) rotate(var(--geo-avatar-rotate, 0deg));
+  transform-origin: 50% 85%;
+  transition: transform 150ms ease-out;
+}
+
+.geo-mascot-avatar__art {
+  position: relative;
+  scale: 1.45;
+  transform-origin: 50% 70%;
+}
+
+.geo-mascot-avatar__still-frame {
+  position: absolute;
+  display: block;
+  overflow: hidden;
+}
+
+.geo-mascot-avatar .geo-mascot-avatar__sprite {
+  display: block;
+  width: 300%;
+  height: 300%;
+  max-width: none;
+  max-height: none;
+  user-select: none;
+}
+
+.geo-mascot-avatar__still {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+}
+
+.geo-mascot-avatar__still--fallback {
+  position: absolute;
+  inset: 17%;
+  width: 66%;
+  height: 66%;
+}
+
+.geo-mascot-avatar__placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--ant-color-text-tertiary, #75857c);
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.geo-mascot-avatar__art--speaking {
+  animation: geo-avatar-speaking 2.8s ease-in-out infinite;
+}
+
+@keyframes geo-avatar-speaking {
+  0%, 100% { transform: translateY(0) rotate(-0.6deg); }
+  50% { transform: translateY(-1px) rotate(0.6deg); }
+}
+
+@media (max-width: 640px) {
+  .geo-mascot-avatar {
+    --geo-mascot-size: 52px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .geo-mascot-avatar__tilt,
+  .geo-mascot-avatar__art--speaking {
+    animation: none;
+    transform: none;
+    transition: none;
+  }
+}

@@ -1,0 +1,93 @@
+groups:
+  - name: zhixiaohe-python-agent
+    rules:
+      - alert: P0PythonModelConfigurationFailure
+        expr: increase(guanghe_failures_total{error_category="MODEL_CONFIGURATION"}[5m]) > 0
+        for: 1m
+        labels: {severity: P0}
+        annotations:
+          summary: Python model authentication, balance, model, or region configuration failed
+      - alert: P1PythonModelSustainedFailure
+        expr: sum(increase(guanghe_failures_total{error_category=~"MODEL_TRANSPORT|MODEL_OUTPUT|MODEL_RATE_LIMIT"}[10m])) >= 5
+        for: 5m
+        labels: {severity: P1}
+        annotations:
+          summary: Python model requests are repeatedly failing or timing out
+      - alert: P1PythonContextOrMemoryFailure
+        expr: increase(guanghe_failures_total{error_category=~"CONTEXT|BUDGET"}[10m]) >= 3
+        for: 5m
+        labels: {severity: P1}
+        annotations:
+          summary: Authorized context, context budget, or memory pressure is failing
+      - alert: P2PythonToolFailureRate
+        expr: sum(rate(guanghe_failures_total{error_category=~"TOOL_POLICY|TOOL_EXECUTION"}[10m])) / clamp_min(sum(rate(guanghe_tool_calls_total[10m])) + sum(rate(guanghe_tool_policy_denials_total[10m])), 0.001) > 0.20
+        for: 10m
+        labels: {severity: P2}
+        annotations:
+          summary: Bounded tool policy or execution failure rate is elevated
+      - alert: P1PythonProviderSubmissionUnknown
+        expr: increase(guanghe_failures_total{error_category="PROVIDER_UNKNOWN"}[5m]) > 0
+        for: 1m
+        labels: {severity: P1}
+        annotations:
+          summary: Provider submission is uncertain and must use recovery-only handling
+      - alert: P2PythonWorkerNoProcessing
+        expr: sum(increase(guanghe_worker_tasks_total{outcome="PROCESSED"}[15m])) == 0 and sum(guanghe_worker_inflight) > 0
+        for: 15m
+        labels: {severity: P2}
+        annotations:
+          summary: Python worker has in-flight work but no completed processing
+      - alert: P2PythonWorkerFailures
+        expr: increase(guanghe_worker_tasks_total{outcome="FAILED"}[10m]) >= 3
+        for: 5m
+        labels: {severity: P2}
+        annotations:
+          summary: Python worker failures are accumulating
+      - alert: P1PythonResultHandoffFailure
+        expr: increase(guanghe_failures_total{error_category="RESULT_HANDOFF"}[5m]) > 0
+        for: 1m
+        labels: {severity: P1}
+        annotations:
+          summary: Python result handoff to Java failed
+      - alert: P3PythonStructuredRepairUsage
+        expr: increase(guanghe_model_repairs_total[30m]) >= 5
+        for: 10m
+        labels: {severity: P3}
+        annotations:
+          summary: Structured model output repair is being used frequently
+      - alert: P1PythonWorkflowSustainedFailureRate
+        expr: sum(rate(guanghe_workflow_events_total{outcome="FAILED"}[15m])) / clamp_min(sum(rate(guanghe_workflow_events_total[15m])), 0.001) > 0.20
+        for: 10m
+        labels: {severity: P1}
+        annotations:
+          summary: Workflow execution stages have a sustained failure rate above 20 percent
+      - alert: P1PythonWorkflowControlPlaneUnavailable
+        expr: sum(increase(guanghe_workflow_events_total{error_category="WORKER_CONTROL",workflow_stage=~"CLAIM|CONTEXT|ACTIVATE|COMPLETE"}[10m])) >= 3
+        for: 5m
+        labels: {severity: P1}
+        annotations:
+          summary: Workflow claim or Java control-plane operations are repeatedly unavailable
+      - alert: P1PythonWorkflowLeaseFencingSpike
+        expr: sum(increase(guanghe_workflow_events_total{error_category="WORKER_FENCING"}[10m])) >= 3
+        for: 5m
+        labels: {severity: P1}
+        annotations:
+          summary: Workflow lease loss or stale execution fencing is elevated
+      - alert: P1PythonWorkflowWaitingTaskBacklog
+        expr: sum(increase(guanghe_workflow_events_total{workflow_stage="WAIT",outcome="ENTERED"}[30m])) - sum(increase(guanghe_workflow_events_total{workflow_stage="RESUME",outcome="RESUMED"}[30m])) >= 3
+        for: 10m
+        labels: {severity: P1}
+        annotations:
+          summary: Workflow child-task waits are not being matched by resume executions
+      - alert: P2PythonWorkflowReplanFailure
+        expr: sum(increase(guanghe_workflow_events_total{workflow_stage="REPLAN",outcome=~"FAILED|EXHAUSTED"}[30m])) >= 3
+        for: 10m
+        labels: {severity: P2}
+        annotations:
+          summary: Workflow replanning is repeatedly failing or exhausting its bounded allowance
+      - alert: P1PythonWorkflowProviderUnknownBacklog
+        expr: sum(increase(guanghe_failures_total{error_category="PROVIDER_UNKNOWN"}[15m])) >= 3
+        for: 5m
+        labels: {severity: P1}
+        annotations:
+          summary: Provider-unknown tasks require recovery-only processing and are accumulating

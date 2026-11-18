@@ -1,0 +1,31 @@
+# Local dependencies and generated artifacts
+**/node_modules/
+**/.venv/
+**/__pycache__/
+**/.pytest_cache/
+**/.ruff_cache/
+**/.pyright/
+**/target/
+**/dist/
+**/coverage/
+**/*.tsbuildinfo
+**/evals/reports/
+
+# Credentials, local overrides and runtime output
+**/.env
+**/.env.*
+!**/.env.example
+!**/*.env.example
+**/*.local
+**/*.log
+**/logs/
+**/*.key
+**/*.p12
+**/*.pfx
+**/*.keystore
+.DS_Store
+Thumbs.db
+
+# Publication tooling and local evidence do not belong in the source repository.
+publication-*.json
+*.zip

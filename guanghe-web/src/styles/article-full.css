@@ -1,0 +1,85 @@
+.article-full-page { width: 100%; max-width: 1200px; margin: 0 auto; min-width: 0; display: grid; gap: 20px; }
+.article-full-page header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.article-full-page h1 { font-size: 24px; margin: 0 0 8px; }
+.article-full-page .ant-card, .article-full-page .ant-card-body { min-width: 0; }
+.article-full-page .chat-message-markdown { max-width: 80ch; margin: 0 auto; line-height: 1.9; overflow-wrap: anywhere; }
+.article-full-settlement { margin-top: 20px; margin-bottom: 0; }
+.article-full-source { max-height: 180px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
+.article-full-editor { display: grid; gap: 16px; }
+.article-full-editor .ant-input-textarea-show-count { margin-bottom: 20px; }
+.article-document { min-width: 0; display: grid; gap: 20px; color: #292929; }
+/* A document panel owns its scroll area; article actions never scroll with the body. */
+.article-document--page, .article-document--panel { display: flex; flex-direction: column; }
+.article-document__viewport { min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+.article-document__viewport > * { flex-shrink: 0; min-width: 0; }
+.article-document__feedback { display: grid; gap: 12px; flex: 0 0 auto; min-width: 0; overflow-wrap: anywhere; }
+.article-document--panel { width: 100%; height: 100%; min-height: 0; gap: 12px; }
+.article-document--panel > .article-document__viewport { flex: 1 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.article-document--panel > .article-document__feedback { max-height: min(30dvh, 180px); overflow: auto; }
+.article-document--panel > .article-document__actions { flex: 0 0 auto; }
+.article-document--page > .article-document__actions { position: sticky; bottom: 0; z-index: 5; }
+.article-full-page--page { display: flex; flex-direction: column; }
+.article-full-page--panel { display: flex; flex-direction: column; flex: 1 1 auto; height: 100%; min-height: 0; gap: 12px; overflow: hidden; }
+.article-full-page--panel > * { flex-shrink: 0; min-width: 0; }
+.article-full-page--panel > .article-document--panel { height: auto; flex: 1 1 auto; }
+.article-full-page--panel > .article-full-page__preview { flex: 1 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.article-full-page--panel > .article-full-settlement { margin: 0; }
+.article-document__heading { display: grid !important; gap: 8px !important; }
+.article-document__heading h2 { font-size: 24px; line-height: 1.5; margin: 0; overflow-wrap: anywhere; }
+.article-document .article-live-preview { max-height: none; overflow: visible; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; font-size: 15px; line-height: 1.95; overflow-wrap: anywhere; }
+.article-document .article-live-preview > :first-child { margin-top: 0; }
+.article-document .article-live-preview p { margin: 0 0 1.15em; white-space: pre-wrap; }
+.article-document .article-live-preview h1, .article-document .article-live-preview h2 { margin: 1.5em 0 .7em; font-size: 22px; line-height: 1.5; }
+.article-document .article-live-preview h3, .article-document .article-live-preview h4 { margin: 1.4em 0 .6em; font-size: 18px; line-height: 1.5; }
+.article-document .article-live-preview ul, .article-document .article-live-preview ol { margin: 0 0 1.2em; padding-left: 1.6em; }
+.article-document .article-live-preview li { margin: .3em 0; }
+.article-document .article-live-preview blockquote { margin: 1em 0; padding: 8px 16px; border-left: 3px solid #d9d9d9; background: #fafafa; }
+.article-document .article-live-preview table { display: block; max-width: 100%; overflow: auto; border-collapse: collapse; margin: 1em 0; }
+.article-document .article-live-preview td, .article-document .article-live-preview th { padding: 8px 12px; border: 1px solid #e8e8e8; }
+.article-document .article-live-preview pre { overflow: auto; padding: 12px; background: #f7f7f7; white-space: pre-wrap; }
+.article-document .article-live-preview figure { margin: 20px 0; text-align: center; }
+.article-document .article-live-preview img.article-document__image { display: block; width: auto; max-width: 100%; max-height: 640px; margin: 0 auto; border-radius: 8px; object-fit: contain; }
+.article-document .article-live-preview figcaption { font-size: 13px; color: #777; margin-top: 8px; }
+.article-document__image-unavailable { display: block; background: #f5f5f5; padding: 32px; color: #888; }
+.article-document__actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; min-width: 0; padding: 16px 0 calc(8px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid #eee; background: #fff; }
+.article-document__actions > * { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+.article-document__actions > .ant-btn { height: auto; min-height: 32px; white-space: normal; }
+.article-content-state { box-sizing: border-box; width: 100%; min-width: 0; min-height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: safe center; gap: 16px; padding: 24px 0; text-align: center; }
+.article-content-state--panel { flex: 1 1 0%; align-self: stretch; height: 100%; min-height: 0; overflow: auto; }
+.article-content-state > * { flex-shrink: 0; max-width: 100%; min-width: 0; }
+.article-content-state > .ant-alert { width: 100%; text-align: start; overflow-wrap: anywhere; }
+.article-content-state .ant-alert-actions { flex-shrink: 0; }
+.article-content-state .ant-spin-description { line-height: 1.6; overflow-wrap: anywhere; }
+.article-document__back { justify-self: start; }
+.article-full-status { padding-bottom: 12px; border-bottom: 1px solid #eee; }
+.article-full-settlement { font-size: 12px; }
+.article-rich-editor { display: grid; gap: 16px; min-width: 0; }
+.article-rich-editor__toolbar { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; position: sticky; top: -24px; z-index: 5; padding: 12px; border: 1px solid #eee; border-radius: 10px; background: #fff; box-shadow: 0 2px 10px #00000005; }
+.article-rich-editor__toolbar .ant-select { width: 106px; margin: 0 6px; }
+.article-rich-editor__toolbar .is-active { color: #c73934; background: #fff0ef; }
+.article-rich-editor__paper { width: 100%; max-width: 860px; min-width: 0; min-height: 620px; margin: 0 auto; padding: 40px 48px; border: 1px solid #eee; background: #fff; box-shadow: 0 4px 20px #00000004; }
+.article-rich-editor__title.ant-input { font-size: 26px; font-weight: 650; line-height: 1.6; padding: 0 0 20px; margin-bottom: 24px; border: 0; border-bottom: 1px solid #f0f0f0; border-radius: 0; box-shadow: none; }
+.article-rich-editor__body { min-height: 460px; outline: none; font-size: 16px; line-height: 1.9; overflow-wrap: anywhere; }
+.article-rich-editor__body p { margin: 0 0 1em; }
+.article-rich-editor__body h1 { font-size: 28px; }.article-rich-editor__body h2 { font-size: 24px; }.article-rich-editor__body h3 { font-size: 21px; }.article-rich-editor__body h4,.article-rich-editor__body h5,.article-rich-editor__body h6 { font-size: 18px; }
+.article-rich-editor__body h1,.article-rich-editor__body h2,.article-rich-editor__body h3,.article-rich-editor__body h4,.article-rich-editor__body h5,.article-rich-editor__body h6 { line-height: 1.5; margin: 1.25em 0 .6em; }
+.article-rich-editor__body ul,.article-rich-editor__body ol { padding-left: 1.6em; margin: 0 0 1.1em; }.article-rich-editor__body li p { margin-bottom: .3em; }
+.article-rich-editor__body blockquote { border-left: 3px solid #ddd; background: #fafafa; padding: 12px 20px; margin: 1em 0; }.article-rich-editor__body blockquote p:last-child { margin-bottom: 0; }
+.article-rich-editor__body pre { padding: 16px; background: #f6f6f6; white-space: pre-wrap; }.article-rich-editor__body code { font-family: monospace; }
+.article-rich-editor__body table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 1em 0; }.article-rich-editor__body td,.article-rich-editor__body th { position: relative; vertical-align: top; min-width: 48px; padding: 8px 12px; border: 1px solid #ddd; }.article-rich-editor__body .selectedCell { background: #fff2f0; }
+.article-rich-editor__body a { color: #2455a6; text-decoration: underline; }
+.article-rich-editor__image { margin: 24px 0; padding: 12px; border: 1px solid transparent; border-radius: 8px; }.article-rich-editor__image.ProseMirror-selectednode { border-color: #d95650; }
+.article-rich-editor__image > img { display: block; max-width: 100%; max-height: 640px; object-fit: contain; margin: 0 auto; }.article-rich-editor__image-caption { display: flex; gap: 8px; margin-top: 10px; }.article-rich-editor__image-caption .ant-input { text-align: center; border-color: transparent; color: #777; font-size: 13px; }.article-rich-editor__image-caption .ant-input:hover,.article-rich-editor__image-caption .ant-input:focus { border-color: #ddd; }
+.article-rich-editor__footer { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; gap: 12px; position: sticky; bottom: -24px; z-index: 5; background: #fff; padding: 16px 4px; border-top: 1px solid #eee; }
+.article-document--panel .article-rich-editor { display: flex; flex-direction: column; }
+.article-document--panel .article-rich-editor__toolbar { top: 0; }
+.article-document--panel .article-rich-editor__footer { bottom: 0; }
+.article-rich-editor__preview { padding: 24px 30px; }.article-rich-editor__preview h2 { overflow-wrap: anywhere; }
+.saved-article-drawer .ant-drawer-content-wrapper { max-width: 100vw; }
+.saved-article-drawer .ant-drawer-body { display: flex; min-height: 0; overflow: hidden; }
+.saved-articles { display: grid; gap: 24px; }
+.saved-articles > header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.saved-articles__grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 20px; }
+.saved-articles__grid h4 { font-size: 17px; line-height: 1.6; }
+.saved-articles__icon { color: #999; font-size: 24px; margin-bottom: 8px; }
+@media (max-width: 640px) { .article-document__heading h2 { font-size: 21px; } .article-document .article-live-preview { font-size: 14px; } .saved-article-drawer .ant-drawer-content-wrapper { width: 100% !important; } .article-rich-editor__paper { padding: 22px 18px; } .article-rich-editor__title.ant-input { font-size: 23px; } .article-rich-editor__toolbar { gap: 2px; padding: 8px 4px; } .article-rich-editor__footer { bottom: -16px; } .article-rich-editor__preview { padding: 8px; } }

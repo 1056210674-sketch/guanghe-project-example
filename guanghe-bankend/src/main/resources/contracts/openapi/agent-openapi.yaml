@@ -1,0 +1,5074 @@
+openapi: 3.1.0
+info:
+  title: Guanghe Agent Internal API
+  description: Internal loopback-only API for the bounded Python Agent service.
+  version: 0.1.0
+servers:
+- url: http://127.0.0.1:8000
+paths:
+  /health:
+    get:
+      tags:
+      - system
+      summary: Health Check
+      description: Process liveness; this does not claim Provider readiness.
+      operationId: getAgentLiveness
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+                title: Response Getagentliveness
+  /internal/v1/health/ready:
+    get:
+      tags:
+      - system
+      summary: Readiness
+      description: Report safe readiness without exposing configuration or file paths.
+      operationId: getAgentReadiness
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessResponse'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessResponse'
+        '403':
+          description: Readiness is accessible only by a direct loopback caller.
+      security: []
+  /internal/v1/capabilities:
+    get:
+      tags:
+      - system
+      summary: Capabilities
+      description: Describe only validated Bundle and explicitly configured Provider capabilities.
+      operationId: getAgentCapabilities
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CapabilitiesResponse'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+        '401':
+          description: Internal authentication failed or the nonce was replayed.
+      security:
+      - InternalHmac: []
+      parameters:
+      - $ref: '#/components/parameters/InternalKeyId'
+      - $ref: '#/components/parameters/InternalTimestamp'
+      - $ref: '#/components/parameters/InternalNonce'
+      - $ref: '#/components/parameters/ContentSha256'
+      - $ref: '#/components/parameters/InternalSignature'
+      - $ref: '#/components/parameters/Traceparent'
+  /internal/v1/chat-runs:
+    post:
+      tags:
+      - chat-runs
+      summary: Start Chat Run
+      operationId: startChatRun
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRunRequest'
+        required: true
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatRunAccepted'
+        '401':
+          description: Internal authentication failed or the nonce was replayed.
+        '409':
+          description: A Chat Run with the requested runId already exists.
+        '503':
+          description: Internal authentication infrastructure, the Agent runtime, or a required dependency
+            is unavailable.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - InternalHmac: []
+      parameters:
+      - $ref: '#/components/parameters/InternalKeyId'
+      - $ref: '#/components/parameters/InternalTimestamp'
+      - $ref: '#/components/parameters/InternalNonce'
+      - $ref: '#/components/parameters/ContentSha256'
+      - $ref: '#/components/parameters/InternalSignature'
+      - $ref: '#/components/parameters/Traceparent'
+  /internal/v1/chat-runs/{runId}:
+    get:
+      tags:
+      - chat-runs
+      summary: Get Chat Run
+      operationId: getChatRunSnapshot
+      parameters:
+      - $ref: '#/components/parameters/InternalKeyId'
+      - $ref: '#/components/parameters/InternalTimestamp'
+      - $ref: '#/components/parameters/InternalNonce'
+      - $ref: '#/components/parameters/ContentSha256'
+      - $ref: '#/components/parameters/InternalSignature'
+      - $ref: '#/components/parameters/Traceparent'
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Runid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatRunSnapshot'
+        '401':
+          description: Internal authentication failed or the nonce was replayed.
+        '404':
+          description: The Chat Run was not found.
+        '503':
+          description: Internal authentication infrastructure or the Agent runtime is unavailable.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - InternalHmac: []
+  /internal/v1/chat-runs/{runId}/events:
+    get:
+      tags:
+      - chat-runs
+      summary: Stream Chat Run Events
+      operationId: streamChatRunEvents
+      parameters:
+      - $ref: '#/components/parameters/InternalKeyId'
+      - $ref: '#/components/parameters/InternalTimestamp'
+      - $ref: '#/components/parameters/InternalNonce'
+      - $ref: '#/components/parameters/ContentSha256'
+      - $ref: '#/components/parameters/InternalSignature'
+      - $ref: '#/components/parameters/Traceparent'
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Runid
+      - name: Last-Event-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last-Event-Id
+      responses:
+        '200':
+          description: Server-sent Chat Run events.
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        '400':
+          description: Last-Event-ID is not a valid numeric sequence.
+        '401':
+          description: Internal authentication failed or the nonce was replayed.
+        '404':
+          description: The Chat Run was not found.
+        '503':
+          description: Internal authentication infrastructure or the Agent runtime is unavailable.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - InternalHmac: []
+  /internal/v1/chat-runs/{runId}/stop:
+    post:
+      tags:
+      - chat-runs
+      summary: Stop Chat Run
+      operationId: stopChatRun
+      parameters:
+      - $ref: '#/components/parameters/InternalKeyId'
+      - $ref: '#/components/parameters/InternalTimestamp'
+      - $ref: '#/components/parameters/InternalNonce'
+      - $ref: '#/components/parameters/ContentSha256'
+      - $ref: '#/components/parameters/InternalSignature'
+      - $ref: '#/components/parameters/Traceparent'
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Runid
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StopRunResponse'
+        '401':
+          description: Internal authentication failed or the nonce was replayed.
+        '404':
+          description: The Chat Run was not found.
+        '503':
+          description: Internal authentication infrastructure or the Agent runtime is unavailable.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - InternalHmac: []
+  /internal/v1/creative/geo-plans:
+    post:
+      tags:
+      - creative
+      summary: Create Plan
+      operationId: createGeoVisualPlan
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeoVisualPlanRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeoVisualPlan'
+        '401':
+          description: Internal HMAC authentication failed or the nonce was replayed.
+        '429':
+          description: The bounded GEO planning capacity is full.
+        '503':
+          description: The structured DeepSeek planner is unavailable or returned an invalid plan.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - InternalHmac: []
+      parameters:
+      - $ref: '#/components/parameters/InternalKeyId'
+      - $ref: '#/components/parameters/InternalTimestamp'
+      - $ref: '#/components/parameters/InternalNonce'
+      - $ref: '#/components/parameters/ContentSha256'
+      - $ref: '#/components/parameters/InternalSignature'
+      - $ref: '#/components/parameters/Traceparent'
+  /internal/v1/geo/syntheses:
+    post:
+      tags:
+      - geo
+      summary: Regenerate
+      operationId: regenerateGeoSynthesis
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeoSynthesisRecoveryRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeoSynthesisRecoveryResponse'
+        '401':
+          description: Internal HMAC authentication failed or nonce replayed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+        '422':
+          description: Invalid or empty authorized saved evidence.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeoSynthesisRecoveryErrorResponse'
+        '429':
+          description: Bounded analysis capacity full.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeoSynthesisRecoveryErrorResponse'
+        '503':
+          description: Model unavailable or structured synthesis failed; no fallback success.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/GeoSynthesisRecoveryErrorResponse'
+                - $ref: '#/components/schemas/InternalErrorResponse'
+                title: Response 503 Regenerategeosynthesis
+        '504':
+          description: The at-most-60-second analysis deadline expired.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeoSynthesisRecoveryErrorResponse'
+      security:
+      - InternalHmac: []
+      parameters:
+      - $ref: '#/components/parameters/InternalKeyId'
+      - $ref: '#/components/parameters/InternalTimestamp'
+      - $ref: '#/components/parameters/InternalNonce'
+      - $ref: '#/components/parameters/ContentSha256'
+      - $ref: '#/components/parameters/InternalSignature'
+      - $ref: '#/components/parameters/Traceparent'
+  /internal/v1/geo/period-report-summaries:
+    post:
+      tags:
+      - geo
+      summary: Summarize
+      operationId: summarizeGeoPeriodReport
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeoPeriodReportSummaryRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeoPeriodReportSummaryResponse'
+        '401':
+          description: Internal HMAC invalid or replayed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+        '422':
+          description: Invalid bounded Java-frozen evidence; source contents never echoed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeoPeriodReportSummaryErrorResponse'
+        '429':
+          description: Existing bounded GEO analysis capacity is full.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeoPeriodReportSummaryErrorResponse'
+        '503':
+          description: DeepSeek unavailable or narrative invalid; no fallback success.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/GeoPeriodReportSummaryErrorResponse'
+                - $ref: '#/components/schemas/InternalErrorResponse'
+                title: Response 503 Summarizegeoperiodreport
+        '504':
+          description: At-most-60-second deadline expired; never retried by this route.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeoPeriodReportSummaryErrorResponse'
+      security:
+      - InternalHmac: []
+      parameters:
+      - $ref: '#/components/parameters/InternalKeyId'
+      - $ref: '#/components/parameters/InternalTimestamp'
+      - $ref: '#/components/parameters/InternalNonce'
+      - $ref: '#/components/parameters/ContentSha256'
+      - $ref: '#/components/parameters/InternalSignature'
+      - $ref: '#/components/parameters/Traceparent'
+  /internal/v1/geo/diagnostic-preparations:
+    post:
+      tags:
+      - geo
+      summary: Prepare
+      operationId: prepareGeoDiagnostic
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiagnosticPreparationRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiagnosticPreparationResponse'
+        '401':
+          description: Internal HMAC invalid or replayed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+        '422':
+          description: Invalid frozen diagnostic input; source text never echoed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiagnosticPreparationErrorResponse'
+        '429':
+          description: Existing bounded GEO analysis capacity is full.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiagnosticPreparationErrorResponse'
+        '503':
+          description: Search/model unavailable or grounding invalid; no fake success.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/DiagnosticPreparationErrorResponse'
+                - $ref: '#/components/schemas/InternalErrorResponse'
+                title: Response 503 Preparegeodiagnostic
+        '504':
+          description: At-most-60-second deadline expired; no automatic job replay.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiagnosticPreparationErrorResponse'
+      security:
+      - InternalHmac: []
+      parameters:
+      - $ref: '#/components/parameters/InternalKeyId'
+      - $ref: '#/components/parameters/InternalTimestamp'
+      - $ref: '#/components/parameters/InternalNonce'
+      - $ref: '#/components/parameters/ContentSha256'
+      - $ref: '#/components/parameters/InternalSignature'
+      - $ref: '#/components/parameters/Traceparent'
+  /internal/v1/geo/diagnostic-analyses:
+    post:
+      tags:
+      - geo
+      summary: Analyze
+      operationId: analyzeGeoDiagnostic
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiagnosticAnalysisRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiagnosticAnalysisResponse'
+        '401':
+          description: Internal HMAC invalid or replayed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+        '422':
+          description: Invalid or over-budget frozen evidence; private text never echoed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiagnosticPreparationErrorResponse'
+        '429':
+          description: Existing bounded GEO analysis capacity is full.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiagnosticPreparationErrorResponse'
+        '503':
+          description: Model or evidence validation failed; no fake report.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/DiagnosticPreparationErrorResponse'
+                - $ref: '#/components/schemas/InternalErrorResponse'
+                title: Response 503 Analyzegeodiagnostic
+        '504':
+          description: At-most-120-second analysis expired; no sampling or automatic replay.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiagnosticPreparationErrorResponse'
+      security:
+      - InternalHmac: []
+      parameters:
+      - $ref: '#/components/parameters/InternalKeyId'
+      - $ref: '#/components/parameters/InternalTimestamp'
+      - $ref: '#/components/parameters/InternalNonce'
+      - $ref: '#/components/parameters/ContentSha256'
+      - $ref: '#/components/parameters/InternalSignature'
+      - $ref: '#/components/parameters/Traceparent'
+components:
+  schemas:
+    CapabilitiesResponse:
+      properties:
+        serviceVersion:
+          type: string
+          title: Serviceversion
+        bundleVersion:
+          type: string
+          title: Bundleversion
+        bundleHash:
+          type: string
+          title: Bundlehash
+        promptHash:
+          type: string
+          title: Prompthash
+        gitCommit:
+          type: string
+          title: Gitcommit
+        modelGateway:
+          $ref: '#/components/schemas/ModelGatewayCapability'
+        intentRouter:
+          $ref: '#/components/schemas/IntentRouterCapability'
+        langfuseExport:
+          $ref: '#/components/schemas/LangfuseExportCapability'
+        supportedProfiles:
+          items:
+            $ref: '#/components/schemas/ProfileCapability'
+          type: array
+          title: Supportedprofiles
+        providers:
+          items:
+            $ref: '#/components/schemas/ProviderCapability'
+          type: array
+          title: Providers
+      type: object
+      required:
+      - serviceVersion
+      - bundleVersion
+      - bundleHash
+      - promptHash
+      - gitCommit
+      - modelGateway
+      - intentRouter
+      - langfuseExport
+      - supportedProfiles
+      - providers
+      title: CapabilitiesResponse
+    ChatMessage:
+      properties:
+        messageId:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Messageid
+        content:
+          type: string
+          maxLength: 16000
+          minLength: 1
+          title: Content
+        replyToMessageId:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Replytomessageid
+        attachmentAssetIds:
+          items:
+            type: string
+          type: array
+          maxItems: 16
+          title: Attachmentassetids
+          default: []
+      additionalProperties: false
+      type: object
+      required:
+      - messageId
+      - content
+      title: ChatMessage
+    ChatRunAccepted:
+      properties:
+        runId:
+          type: string
+          format: uuid
+          title: Runid
+        status:
+          $ref: '#/components/schemas/RunStatus'
+        eventsUrl:
+          type: string
+          title: Eventsurl
+      additionalProperties: false
+      type: object
+      required:
+      - runId
+      - status
+      - eventsUrl
+      title: ChatRunAccepted
+    ChatRunEvent:
+      properties:
+        schemaVersion:
+          type: integer
+          const: 1
+          title: Schemaversion
+          default: 1
+        eventId:
+          type: string
+          format: uuid
+          title: Eventid
+        eventType:
+          type: string
+          enum:
+          - run.started
+          - run.progress
+          - message.delta
+          - interaction.required
+          - task-draft.proposed
+          - run.completed
+          - run.failed
+          - usage.reported
+          - heartbeat
+          title: Eventtype
+        runId:
+          type: string
+          format: uuid
+          title: Runid
+        occurredAt:
+          type: string
+          format: date-time
+          title: Occurredat
+        sequence:
+          type: integer
+          minimum: 1.0
+          title: Sequence
+        payload:
+          additionalProperties:
+            $ref: '#/components/schemas/JsonValue'
+          type: object
+          title: Payload
+      additionalProperties: false
+      type: object
+      required:
+      - eventId
+      - eventType
+      - runId
+      - occurredAt
+      - sequence
+      - payload
+      title: ChatRunEvent
+      allOf:
+      - if:
+          properties:
+            eventType:
+              const: message.delta
+          required:
+          - eventType
+        then:
+          properties:
+            payload:
+              $ref: '#/components/schemas/MessageDeltaPayload'
+      - if:
+          properties:
+            eventType:
+              const: run.completed
+          required:
+          - eventType
+        then:
+          properties:
+            payload:
+              properties:
+                businessOutcome:
+                  $ref: '#/components/schemas/BusinessOutcome'
+                  description: Runtime-owned business result. Sent only when both per-Run authorization
+                    and Python output configuration enable it. Java verifies actual drafts before DRAFT_READY.
+                    Omitted on STOPPED.
+                geoContextUsed:
+                  type: boolean
+                  description: True only when this Run used the GEO readonly renderer. Java derives action
+                    metadata solely from this Run's frozen authorized context, never from model-generated
+                    IDs. Omitted for ordinary replies, drafts, or stopped Runs.
+      - if:
+          properties:
+            eventType:
+              const: usage.reported
+          required:
+          - eventType
+        then:
+          properties:
+            payload:
+              $ref: '#/components/schemas/Usage'
+      - if:
+          properties:
+            eventType:
+              const: run.progress
+          required:
+          - eventType
+        then:
+          properties:
+            payload:
+              $ref: '#/components/schemas/RunProgressPayload'
+      - if:
+          properties:
+            eventType:
+              const: task-draft.proposed
+          required:
+          - eventType
+        then:
+          properties:
+            payload:
+              $ref: '#/components/schemas/TaskDraftProposal'
+    ChatRunRequest:
+      properties:
+        runId:
+          type: string
+          format: uuid
+          title: Runid
+        conversationId:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Conversationid
+        userContextRef:
+          type: string
+          maxLength: 512
+          minLength: 1
+          title: Usercontextref
+        message:
+          $ref: '#/components/schemas/ChatMessage'
+        trustedState:
+          $ref: '#/components/schemas/TrustedState'
+        budget:
+          $ref: '#/components/schemas/RunBudget'
+      additionalProperties: false
+      type: object
+      required:
+      - runId
+      - conversationId
+      - userContextRef
+      - message
+      - trustedState
+      - budget
+      title: ChatRunRequest
+    ChatRunSnapshot:
+      properties:
+        runId:
+          type: string
+          format: uuid
+          title: Runid
+        conversationId:
+          type: string
+          title: Conversationid
+        status:
+          $ref: '#/components/schemas/RunStatus'
+        eventCount:
+          type: integer
+          title: Eventcount
+        lastEvent:
+          anyOf:
+          - $ref: '#/components/schemas/ChatRunEvent'
+          - type: 'null'
+      additionalProperties: false
+      type: object
+      required:
+      - runId
+      - conversationId
+      - status
+      - eventCount
+      title: ChatRunSnapshot
+    CompetitorCandidate:
+      properties:
+        name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Name
+        brandTerms:
+          items:
+            type: string
+            maxLength: 200
+            minLength: 1
+          type: array
+          maxItems: 50
+          minItems: 1
+          title: Brandterms
+        reason:
+          type: string
+          maxLength: 1000
+          minLength: 1
+          title: Reason
+        sourceIds:
+          items:
+            type: string
+            maxLength: 128
+            minLength: 1
+          type: array
+          maxItems: 8
+          minItems: 1
+          title: Sourceids
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - brandTerms
+      - reason
+      - sourceIds
+      title: CompetitorCandidate
+    DiagnosticAnalysisEvidence:
+      properties:
+        profile:
+          $ref: '#/components/schemas/DiagnosticConfirmedProfile'
+        competitors:
+          items:
+            $ref: '#/components/schemas/DiagnosticCompetitor'
+          type: array
+          maxItems: 5
+          title: Competitors
+        questions:
+          items:
+            $ref: '#/components/schemas/GeoDiagnosticQuestionSnapshot'
+          type: array
+          maxItems: 10
+          minItems: 3
+          title: Questions
+        platformCodes:
+          items:
+            type: string
+            enum:
+            - DOUBAO
+            - DEEPSEEK
+            - QWEN
+            - WENXIN
+            - KIMI
+            - YUANBAO
+            - ZHIPU
+          type: array
+          maxItems: 7
+          minItems: 1
+          title: Platformcodes
+        metrics:
+          $ref: '#/components/schemas/DiagnosticMetrics'
+        samples:
+          items:
+            $ref: '#/components/schemas/DiagnosticSample'
+          type: array
+          maxItems: 70
+          minItems: 1
+          title: Samples
+        sources:
+          items:
+            $ref: '#/components/schemas/DiagnosticAnalysisSource'
+          type: array
+          maxItems: 100
+          title: Sources
+        limitations:
+          items:
+            type: string
+            maxLength: 1000
+            minLength: 1
+          type: array
+          maxItems: 20
+          title: Limitations
+      additionalProperties: false
+      type: object
+      required:
+      - profile
+      - competitors
+      - questions
+      - platformCodes
+      - metrics
+      - samples
+      - sources
+      - limitations
+      title: DiagnosticAnalysisEvidence
+    DiagnosticAnalysisRequest:
+      properties:
+        jobId:
+          type: string
+          pattern: ^[1-9][0-9]{0,18}$
+          title: Jobid
+        inputHash:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+          title: Inputhash
+        deadlineAt:
+          type: string
+          format: date-time
+          title: Deadlineat
+        title:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Title
+        evidence:
+          $ref: '#/components/schemas/DiagnosticAnalysisEvidence'
+      additionalProperties: false
+      type: object
+      required:
+      - jobId
+      - inputHash
+      - deadlineAt
+      - title
+      - evidence
+      title: DiagnosticAnalysisRequest
+      description: Frozen classified matrix; maximum 262144 UTF-8 bytes, no new collection.
+    DiagnosticAnalysisResponse:
+      properties:
+        jobId:
+          type: string
+          pattern: ^[1-9][0-9]{0,18}$
+          title: Jobid
+        inputHash:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+          title: Inputhash
+        promptVersion:
+          type: string
+          const: GEO_DIAGNOSTIC_ANALYSIS_V11
+          title: Promptversion
+          default: GEO_DIAGNOSTIC_ANALYSIS_V11
+        report:
+          $ref: '#/components/schemas/DiagnosticReport'
+        synthesisUsage:
+          $ref: '#/components/schemas/GeoSynthesisUsage'
+      additionalProperties: false
+      type: object
+      required:
+      - jobId
+      - inputHash
+      - report
+      - synthesisUsage
+      title: DiagnosticAnalysisResponse
+    DiagnosticAnalysisSource:
+      properties:
+        id:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Id
+        title:
+          type: string
+          maxLength: 500
+          minLength: 1
+          title: Title
+        url:
+          type: string
+          maxLength: 2048
+          minLength: 8
+          title: Url
+        snippet:
+          type: string
+          maxLength: 500
+          title: Snippet
+      additionalProperties: false
+      type: object
+      required:
+      - id
+      - title
+      - url
+      - snippet
+      title: DiagnosticAnalysisSource
+    DiagnosticCognitionFinding:
+      properties:
+        title:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Title
+        observation:
+          type: string
+          maxLength: 1200
+          minLength: 1
+          title: Observation
+        businessImpact:
+          type: string
+          maxLength: 800
+          minLength: 1
+          title: Businessimpact
+        evidence:
+          items:
+            $ref: '#/components/schemas/DiagnosticReportEvidence'
+          type: array
+          maxItems: 5
+          minItems: 1
+          title: Evidence
+      additionalProperties: false
+      type: object
+      required:
+      - title
+      - observation
+      - businessImpact
+      - evidence
+      title: DiagnosticCognitionFinding
+    DiagnosticCompetitor:
+      properties:
+        id:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Id
+        name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Name
+        brandTerms:
+          items:
+            type: string
+            maxLength: 200
+            minLength: 1
+          type: array
+          maxItems: 50
+          title: Brandterms
+        reason:
+          type: string
+          maxLength: 1000
+          title: Reason
+        sourceIds:
+          items:
+            type: string
+            maxLength: 128
+            minLength: 1
+          type: array
+          maxItems: 8
+          title: Sourceids
+        origin:
+          type: string
+          enum:
+          - AI
+          - USER
+          title: Origin
+        edited:
+          type: boolean
+          title: Edited
+      additionalProperties: false
+      type: object
+      required:
+      - id
+      - name
+      - brandTerms
+      - reason
+      - sourceIds
+      - origin
+      - edited
+      title: DiagnosticCompetitor
+    DiagnosticConfirmedProfile:
+      properties:
+        brandName:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Brandname
+        website:
+          anyOf:
+          - type: string
+            maxLength: 2048
+          - type: 'null'
+          title: Website
+        introduction:
+          type: string
+          maxLength: 6000
+          minLength: 1
+          title: Introduction
+        brandTerms:
+          items:
+            type: string
+            maxLength: 200
+            minLength: 1
+          type: array
+          maxItems: 50
+          minItems: 1
+          title: Brandterms
+        region:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Region
+      additionalProperties: false
+      type: object
+      required:
+      - brandName
+      - website
+      - introduction
+      - brandTerms
+      - region
+      title: DiagnosticConfirmedProfile
+      description: Java's submitted brand-level snapshot, not an incomplete preparation card.
+    DiagnosticContentTopic:
+      properties:
+        title:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Title
+        audienceQuestion:
+          type: string
+          maxLength: 1000
+          minLength: 1
+          title: Audiencequestion
+        angle:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Angle
+        coveredBrandTerms:
+          items:
+            type: string
+            maxLength: 200
+            minLength: 1
+          type: array
+          maxItems: 50
+          title: Coveredbrandterms
+        basisEvidence:
+          items:
+            $ref: '#/components/schemas/DiagnosticReportEvidence'
+          type: array
+          maxItems: 5
+          minItems: 1
+          title: Basisevidence
+        intentLayer:
+          anyOf:
+          - type: string
+            enum:
+            - BRAND
+            - CATEGORY
+            - SCENARIO
+            - QUESTION
+            - DECISION
+          - type: 'null'
+          title: Intentlayer
+      additionalProperties: false
+      type: object
+      required:
+      - title
+      - audienceQuestion
+      - angle
+      - coveredBrandTerms
+      - basisEvidence
+      title: DiagnosticContentTopic
+    DiagnosticCoreJudgment:
+      properties:
+        headline:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Headline
+        description:
+          type: string
+          maxLength: 1600
+          minLength: 1
+          title: Description
+        evidence:
+          items:
+            $ref: '#/components/schemas/DiagnosticReportEvidence'
+          type: array
+          maxItems: 5
+          minItems: 1
+          title: Evidence
+      additionalProperties: false
+      type: object
+      required:
+      - headline
+      - description
+      - evidence
+      title: DiagnosticCoreJudgment
+    DiagnosticDiscoveryMetrics:
+      properties:
+        expectedSamples:
+          type: integer
+          maximum: 70.0
+          minimum: 0.0
+          title: Expectedsamples
+        validSamples:
+          type: integer
+          maximum: 70.0
+          minimum: 0.0
+          title: Validsamples
+        failedSamples:
+          type: integer
+          maximum: 70.0
+          minimum: 0.0
+          title: Failedsamples
+        missingSamples:
+          type: integer
+          maximum: 70.0
+          minimum: 0.0
+          title: Missingsamples
+        platformCode:
+          type: string
+          enum:
+          - DOUBAO
+          - DEEPSEEK
+          - QWEN
+          - WENXIN
+          - KIMI
+          - YUANBAO
+          - ZHIPU
+          title: Platformcode
+        mentions:
+          items:
+            $ref: '#/components/schemas/DiagnosticMention'
+          type: array
+          maxItems: 6
+          minItems: 1
+          title: Mentions
+      additionalProperties: false
+      type: object
+      required:
+      - expectedSamples
+      - validSamples
+      - failedSamples
+      - missingSamples
+      - platformCode
+      - mentions
+      title: DiagnosticDiscoveryMetrics
+    DiagnosticFinding:
+      properties:
+        section:
+          type: string
+          enum:
+          - DISCOVERY
+          - REPUTATION
+          - COMPETITION
+          - PUBLIC_RESEARCH
+          title: Section
+        heading:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Heading
+        description:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Description
+        evidence:
+          items:
+            $ref: '#/components/schemas/DiagnosticReportEvidence'
+          type: array
+          maxItems: 5
+          minItems: 1
+          title: Evidence
+      additionalProperties: false
+      type: object
+      required:
+      - section
+      - heading
+      - description
+      - evidence
+      title: DiagnosticFinding
+    DiagnosticInput:
+      properties:
+        brandName:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Brandname
+        profile:
+          anyOf:
+          - $ref: '#/components/schemas/DiagnosticProfile'
+          - type: 'null'
+        competitors:
+          items:
+            $ref: '#/components/schemas/DiagnosticCompetitor'
+          type: array
+          maxItems: 5
+          title: Competitors
+        discoveryQuestions:
+          items:
+            $ref: '#/components/schemas/DiagnosticQuestion'
+          type: array
+          maxItems: 10
+          title: Discoveryquestions
+        reputationQuestions:
+          items:
+            $ref: '#/components/schemas/DiagnosticQuestion'
+          type: array
+          maxItems: 10
+          title: Reputationquestions
+        sources:
+          items:
+            $ref: '#/components/schemas/DiagnosticSource'
+          type: array
+          maxItems: 32
+          title: Sources
+      additionalProperties: false
+      type: object
+      required:
+      - brandName
+      - profile
+      - competitors
+      - discoveryQuestions
+      - reputationQuestions
+      - sources
+      title: DiagnosticInput
+    DiagnosticKeywordLayer:
+      properties:
+        layer:
+          type: string
+          enum:
+          - BRAND
+          - CATEGORY
+          - SCENARIO
+          - QUESTION
+          - DECISION
+          title: Layer
+        questionIds:
+          items:
+            type: string
+            pattern: ^[1-9][0-9]{0,18}$
+          type: array
+          maxItems: 10
+          minItems: 1
+          title: Questionids
+        assessment:
+          type: string
+          maxLength: 800
+          minLength: 1
+          title: Assessment
+        nextAction:
+          type: string
+          maxLength: 800
+          minLength: 1
+          title: Nextaction
+        evidence:
+          items:
+            $ref: '#/components/schemas/DiagnosticReportEvidence'
+          type: array
+          maxItems: 5
+          minItems: 1
+          title: Evidence
+      additionalProperties: false
+      type: object
+      required:
+      - layer
+      - questionIds
+      - assessment
+      - nextAction
+      - evidence
+      title: DiagnosticKeywordLayer
+    DiagnosticMention:
+      properties:
+        brandId:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Brandid
+        name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Name
+        mentionedSamples:
+          type: integer
+          maximum: 70.0
+          minimum: 0.0
+          title: Mentionedsamples
+        mentionRate:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Mentionrate
+      additionalProperties: false
+      type: object
+      required:
+      - brandId
+      - name
+      - mentionedSamples
+      - mentionRate
+      title: DiagnosticMention
+    DiagnosticMetrics:
+      properties:
+        expectedSamples:
+          type: integer
+          maximum: 70.0
+          minimum: 0.0
+          title: Expectedsamples
+        validSamples:
+          type: integer
+          maximum: 70.0
+          minimum: 0.0
+          title: Validsamples
+        failedSamples:
+          type: integer
+          maximum: 70.0
+          minimum: 0.0
+          title: Failedsamples
+        missingSamples:
+          type: integer
+          maximum: 70.0
+          minimum: 0.0
+          title: Missingsamples
+        discovery:
+          items:
+            $ref: '#/components/schemas/DiagnosticDiscoveryMetrics'
+          type: array
+          maxItems: 7
+          minItems: 1
+          title: Discovery
+        reputation:
+          items:
+            $ref: '#/components/schemas/DiagnosticReputationMetrics'
+          type: array
+          maxItems: 7
+          minItems: 1
+          title: Reputation
+      additionalProperties: false
+      type: object
+      required:
+      - expectedSamples
+      - validSamples
+      - failedSamples
+      - missingSamples
+      - discovery
+      - reputation
+      title: DiagnosticMetrics
+    DiagnosticPreparationErrorResponse:
+      properties:
+        detail:
+          $ref: '#/components/schemas/InternalErrorResponse'
+      type: object
+      required:
+      - detail
+      title: DiagnosticPreparationErrorResponse
+    DiagnosticPreparationRequest:
+      properties:
+        jobId:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,128}$
+          title: Jobid
+        inputHash:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+          title: Inputhash
+        phase:
+          type: string
+          enum:
+          - BRAND_RESEARCH
+          - COMPETITORS
+          - DISCOVERY_QUESTIONS
+          - REPUTATION_QUESTIONS
+          title: Phase
+        deadlineAt:
+          type: string
+          format: date-time
+          title: Deadlineat
+        input:
+          $ref: '#/components/schemas/DiagnosticInput'
+      additionalProperties: false
+      type: object
+      required:
+      - jobId
+      - inputHash
+      - phase
+      - deadlineAt
+      - input
+      title: DiagnosticPreparationRequest
+    DiagnosticPreparationResponse:
+      properties:
+        jobId:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,128}$
+          title: Jobid
+        inputHash:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+          title: Inputhash
+        promptVersion:
+          type: string
+          const: GEO_DIAGNOSTIC_PREPARATION_V5
+          title: Promptversion
+          default: GEO_DIAGNOSTIC_PREPARATION_V5
+        result:
+          $ref: '#/components/schemas/DiagnosticPreparationResult'
+        synthesisUsage:
+          $ref: '#/components/schemas/GeoSynthesisUsage'
+        searchRequestCount:
+          type: integer
+          maximum: 6.0
+          minimum: 0.0
+          title: Searchrequestcount
+      additionalProperties: false
+      type: object
+      required:
+      - jobId
+      - inputHash
+      - result
+      - synthesisUsage
+      - searchRequestCount
+      title: DiagnosticPreparationResponse
+    DiagnosticPreparationResult:
+      properties:
+        profile:
+          anyOf:
+          - $ref: '#/components/schemas/DiagnosticProfile'
+          - type: 'null'
+        competitors:
+          items:
+            $ref: '#/components/schemas/CompetitorCandidate'
+          type: array
+          maxItems: 5
+          title: Competitors
+        questions:
+          items:
+            $ref: '#/components/schemas/QuestionCandidate'
+          type: array
+          maxItems: 10
+          title: Questions
+        sources:
+          items:
+            $ref: '#/components/schemas/DiagnosticSource'
+          type: array
+          maxItems: 32
+          title: Sources
+        warnings:
+          items:
+            type: string
+            maxLength: 300
+            minLength: 1
+          type: array
+          maxItems: 8
+          title: Warnings
+      additionalProperties: false
+      type: object
+      required:
+      - profile
+      - competitors
+      - questions
+      - sources
+      - warnings
+      title: DiagnosticPreparationResult
+    DiagnosticProfile:
+      properties:
+        brandName:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Brandname
+        website:
+          anyOf:
+          - type: string
+            maxLength: 2048
+          - type: 'null'
+          title: Website
+        introduction:
+          type: string
+          maxLength: 6000
+          title: Introduction
+        brandTerms:
+          items:
+            type: string
+            maxLength: 200
+            minLength: 1
+          type: array
+          maxItems: 50
+          title: Brandterms
+        region:
+          type: string
+          maxLength: 100
+          title: Region
+      additionalProperties: false
+      type: object
+      required:
+      - brandName
+      - website
+      - introduction
+      - brandTerms
+      - region
+      title: DiagnosticProfile
+    DiagnosticQuestion:
+      properties:
+        id:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Id
+        text:
+          type: string
+          maxLength: 1000
+          minLength: 1
+          title: Text
+        origin:
+          type: string
+          enum:
+          - AI
+          - USER
+          title: Origin
+        edited:
+          type: boolean
+          title: Edited
+      additionalProperties: false
+      type: object
+      required:
+      - id
+      - text
+      - origin
+      - edited
+      title: DiagnosticQuestion
+    DiagnosticRecommendation:
+      properties:
+        priority:
+          type: string
+          enum:
+          - P0
+          - P1
+          - P2
+          title: Priority
+        title:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Title
+        action:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Action
+        basisEvidence:
+          items:
+            $ref: '#/components/schemas/DiagnosticReportEvidence'
+          type: array
+          maxItems: 5
+          minItems: 1
+          title: Basisevidence
+        currentState:
+          anyOf:
+          - type: string
+            maxLength: 1000
+            minLength: 1
+          - type: 'null'
+          title: Currentstate
+        businessImpact:
+          anyOf:
+          - type: string
+            maxLength: 800
+            minLength: 1
+          - type: 'null'
+          title: Businessimpact
+        deliverable:
+          anyOf:
+          - type: string
+            maxLength: 600
+            minLength: 1
+          - type: 'null'
+          title: Deliverable
+        acceptance:
+          anyOf:
+          - type: string
+            maxLength: 600
+            minLength: 1
+          - type: 'null'
+          title: Acceptance
+        ownerRole:
+          anyOf:
+          - type: string
+            maxLength: 120
+            minLength: 1
+          - type: 'null'
+          title: Ownerrole
+        timeframe:
+          anyOf:
+          - type: string
+            maxLength: 120
+            minLength: 1
+          - type: 'null'
+          title: Timeframe
+      additionalProperties: false
+      type: object
+      required:
+      - priority
+      - title
+      - action
+      - basisEvidence
+      title: DiagnosticRecommendation
+    DiagnosticReport:
+      properties:
+        title:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Title
+        summary:
+          type: string
+          maxLength: 4000
+          minLength: 1
+          title: Summary
+        findings:
+          items:
+            $ref: '#/components/schemas/DiagnosticFinding'
+          type: array
+          maxItems: 20
+          minItems: 1
+          title: Findings
+        recommendations:
+          items:
+            $ref: '#/components/schemas/DiagnosticRecommendation'
+          type: array
+          maxItems: 15
+          minItems: 1
+          title: Recommendations
+        contentTopics:
+          items:
+            $ref: '#/components/schemas/DiagnosticContentTopic'
+          type: array
+          maxItems: 10
+          minItems: 1
+          title: Contenttopics
+        limitations:
+          items:
+            type: string
+            maxLength: 1000
+            minLength: 1
+          type: array
+          maxItems: 20
+          title: Limitations
+        strategy:
+          anyOf:
+          - $ref: '#/components/schemas/DiagnosticStrategy'
+          - type: 'null'
+      additionalProperties: false
+      type: object
+      required:
+      - title
+      - summary
+      - findings
+      - recommendations
+      - contentTopics
+      - limitations
+      title: DiagnosticReport
+    DiagnosticReportEvidence:
+      properties:
+        unitKey:
+          anyOf:
+          - type: string
+            pattern: ^[1-9][0-9]{0,18}:(DOUBAO|DEEPSEEK|QWEN|WENXIN|KIMI|YUANBAO|ZHIPU):1$
+          - type: 'null'
+          title: Unitkey
+        sourceId:
+          anyOf:
+          - type: string
+            maxLength: 128
+            minLength: 1
+          - type: 'null'
+          title: Sourceid
+        quote:
+          type: string
+          maxLength: 1000
+          minLength: 1
+          title: Quote
+      additionalProperties: false
+      type: object
+      required:
+      - unitKey
+      - sourceId
+      - quote
+      title: DiagnosticReportEvidence
+    DiagnosticReputationMetrics:
+      properties:
+        expectedSamples:
+          type: integer
+          maximum: 70.0
+          minimum: 0.0
+          title: Expectedsamples
+        validSamples:
+          type: integer
+          maximum: 70.0
+          minimum: 0.0
+          title: Validsamples
+        failedSamples:
+          type: integer
+          maximum: 70.0
+          minimum: 0.0
+          title: Failedsamples
+        missingSamples:
+          type: integer
+          maximum: 70.0
+          minimum: 0.0
+          title: Missingsamples
+        platformCode:
+          type: string
+          enum:
+          - DOUBAO
+          - DEEPSEEK
+          - QWEN
+          - WENXIN
+          - KIMI
+          - YUANBAO
+          - ZHIPU
+          title: Platformcode
+        recognizedSamples:
+          type: integer
+          maximum: 70.0
+          minimum: 0.0
+          title: Recognizedsamples
+      additionalProperties: false
+      type: object
+      required:
+      - expectedSamples
+      - validSamples
+      - failedSamples
+      - missingSamples
+      - platformCode
+      - recognizedSamples
+      title: DiagnosticReputationMetrics
+    DiagnosticRoadmapStage:
+      properties:
+        stage:
+          type: string
+          maxLength: 80
+          minLength: 1
+          title: Stage
+        objective:
+          type: string
+          maxLength: 800
+          minLength: 1
+          title: Objective
+        recommendationIndexes:
+          items:
+            type: integer
+            maximum: 14.0
+            minimum: 0.0
+          type: array
+          maxItems: 15
+          minItems: 1
+          title: Recommendationindexes
+      additionalProperties: false
+      type: object
+      required:
+      - stage
+      - objective
+      - recommendationIndexes
+      title: DiagnosticRoadmapStage
+    DiagnosticSample:
+      properties:
+        unitKey:
+          type: string
+          pattern: ^[1-9][0-9]{0,18}:(DOUBAO|DEEPSEEK|QWEN|WENXIN|KIMI|YUANBAO|ZHIPU):1$
+          title: Unitkey
+        questionId:
+          type: string
+          pattern: ^[1-9][0-9]{0,18}$
+          title: Questionid
+        category:
+          type: string
+          enum:
+          - BRAND_DISCOVERY
+          - BRAND_REPUTATION
+          title: Category
+        platformCode:
+          type: string
+          enum:
+          - DOUBAO
+          - DEEPSEEK
+          - QWEN
+          - WENXIN
+          - KIMI
+          - YUANBAO
+          - ZHIPU
+          title: Platformcode
+        status:
+          type: string
+          enum:
+          - SUCCEEDED
+          - FAILED
+          - MISSING
+          title: Status
+        answerExcerpt:
+          anyOf:
+          - type: string
+            maxLength: 1600
+          - type: 'null'
+          title: Answerexcerpt
+        answerTruncated:
+          type: boolean
+          title: Answertruncated
+        stableErrorCode:
+          anyOf:
+          - type: string
+            pattern: ^[A-Z][A-Z0-9_]{0,127}$
+          - type: 'null'
+          title: Stableerrorcode
+        sourceIds:
+          items:
+            type: string
+            maxLength: 128
+            minLength: 1
+          type: array
+          maxItems: 50
+          title: Sourceids
+        matchedBrandIds:
+          anyOf:
+          - items:
+              type: string
+              maxLength: 128
+              minLength: 1
+            type: array
+            maxItems: 6
+          - type: 'null'
+          title: Matchedbrandids
+          description: 'Java full-answer matches: OWN and selected competitor IDs. New snapshots always
+            send an array; FAILED/MISSING send []. Missing/null is unknown ONLY for immutable legacy V1
+            retry evidence, never zero and never recomputed from excerpts.'
+      additionalProperties: false
+      type: object
+      required:
+      - unitKey
+      - questionId
+      - category
+      - platformCode
+      - status
+      - answerExcerpt
+      - answerTruncated
+      - stableErrorCode
+      - sourceIds
+      title: DiagnosticSample
+    DiagnosticSource:
+      properties:
+        id:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Id
+        title:
+          type: string
+          maxLength: 500
+          minLength: 1
+          title: Title
+        url:
+          type: string
+          maxLength: 2048
+          minLength: 8
+          title: Url
+        snippet:
+          type: string
+          maxLength: 2000
+          title: Snippet
+      additionalProperties: false
+      type: object
+      required:
+      - id
+      - title
+      - url
+      - snippet
+      title: DiagnosticSource
+    DiagnosticStrategy:
+      properties:
+        version:
+          type: string
+          const: consulting-v1
+          title: Version
+        coreJudgment:
+          $ref: '#/components/schemas/DiagnosticCoreJudgment'
+        cognitionFindings:
+          items:
+            $ref: '#/components/schemas/DiagnosticCognitionFinding'
+          type: array
+          maxItems: 5
+          title: Cognitionfindings
+        keywordLayers:
+          items:
+            $ref: '#/components/schemas/DiagnosticKeywordLayer'
+          type: array
+          maxItems: 5
+          title: Keywordlayers
+        roadmap:
+          items:
+            $ref: '#/components/schemas/DiagnosticRoadmapStage'
+          type: array
+          maxItems: 4
+          minItems: 1
+          title: Roadmap
+      additionalProperties: false
+      type: object
+      required:
+      - version
+      - coreJudgment
+      - cognitionFindings
+      - keywordLayers
+      - roadmap
+      title: DiagnosticStrategy
+    GeoCitation:
+      properties:
+        title:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Title
+        url:
+          type: string
+          maxLength: 2048
+          minLength: 8
+          title: Url
+        domain:
+          anyOf:
+          - type: string
+            maxLength: 253
+          - type: 'null'
+          title: Domain
+        snippet:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Snippet
+        observedAt:
+          type: string
+          format: date-time
+          title: Observedat
+      additionalProperties: false
+      type: object
+      required:
+      - url
+      - observedAt
+      title: GeoCitation
+    GeoCompetitorCandidate:
+      properties:
+        name:
+          type: string
+          maxLength: 150
+          minLength: 2
+          title: Name
+        entityKind:
+          type: string
+          enum:
+          - BRAND
+          - PRODUCT
+          title: Entitykind
+        evidence:
+          items:
+            $ref: '#/components/schemas/GeoCompetitorEvidence'
+          type: array
+          maxItems: 2
+          minItems: 1
+          title: Evidence
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - entityKind
+      - evidence
+      title: GeoCompetitorCandidate
+    GeoCompetitorEvidence:
+      properties:
+        unitKey:
+          type: string
+          maxLength: 256
+          minLength: 1
+          pattern: ^[1-9][0-9]{0,18}:(DOUBAO|DEEPSEEK|QWEN|WENXIN|KIMI|YUANBAO|ZHIPU):[1-3]$
+          title: Unitkey
+        quote:
+          type: string
+          maxLength: 240
+          minLength: 1
+          title: Quote
+        signal:
+          type: string
+          enum:
+          - MENTION
+          - POSITIVE_ATTRIBUTE
+          - NEGATIVE_ATTRIBUTE
+          title: Signal
+      additionalProperties: false
+      type: object
+      required:
+      - unitKey
+      - quote
+      - signal
+      title: GeoCompetitorEvidence
+    GeoCompetitorSnapshot:
+      properties:
+        id:
+          type: string
+          pattern: ^[1-9][0-9]{0,18}$
+          title: Id
+        name:
+          type: string
+          maxLength: 150
+          minLength: 1
+          title: Name
+        aliases:
+          items:
+            type: string
+            maxLength: 150
+            minLength: 1
+          type: array
+          title: Aliases
+        competitorType:
+          type: string
+          enum:
+          - DIRECT
+          - INDIRECT
+          - SUBSTITUTE
+          title: Competitortype
+      additionalProperties: false
+      type: object
+      required:
+      - id
+      - name
+      - aliases
+      - competitorType
+      title: GeoCompetitorSnapshot
+    GeoDiagnosticQuestionSnapshot:
+      properties:
+        id:
+          type: string
+          pattern: ^[1-9][0-9]{0,18}$
+          title: Id
+        category:
+          type: string
+          enum:
+          - BRAND_DISCOVERY
+          - BRAND_REPUTATION
+          title: Category
+        text:
+          type: string
+          maxLength: 1000
+          minLength: 1
+          title: Text
+      additionalProperties: false
+      type: object
+      required:
+      - id
+      - category
+      - text
+      title: GeoDiagnosticQuestionSnapshot
+    GeoEvidenceProjection:
+      properties:
+        answerCharLimit:
+          type: integer
+          maximum: 6000.0
+          minimum: 1.0
+          title: Answercharlimit
+        maxCitationsPerObservation:
+          type: integer
+          maximum: 3.0
+          minimum: 3.0
+          title: Maxcitationsperobservation
+        truncatedAnswerCount:
+          type: integer
+          maximum: 210.0
+          minimum: 0.0
+          title: Truncatedanswercount
+        omittedCitationCount:
+          type: integer
+          maximum: 21000.0
+          minimum: 0.0
+          title: Omittedcitationcount
+      additionalProperties: false
+      type: object
+      required:
+      - answerCharLimit
+      - maxCitationsPerObservation
+      - truncatedAnswerCount
+      - omittedCitationCount
+      title: GeoEvidenceProjection
+    GeoMonitoringTarget:
+      properties:
+        kind:
+          type: string
+          enum:
+          - PRODUCT
+          - BRAND
+          title: Kind
+        name:
+          type: string
+          maxLength: 150
+          minLength: 1
+          title: Name
+        aliases:
+          items:
+            type: string
+            maxLength: 150
+            minLength: 1
+          type: array
+          maxItems: 50
+          title: Aliases
+      additionalProperties: false
+      type: object
+      required:
+      - kind
+      - name
+      - aliases
+      title: GeoMonitoringTarget
+      description: Identity resolved by Java from this run's immutable catalog snapshot.
+    GeoObservation:
+      properties:
+        platformCode:
+          $ref: '#/components/schemas/GeoPlatformCode'
+        questionId:
+          type: string
+          maxLength: 128
+          minLength: 1
+          pattern: ^[A-Za-z0-9._-]+$
+          title: Questionid
+        sampleNo:
+          type: integer
+          maximum: 3.0
+          minimum: 1.0
+          title: Sampleno
+        status:
+          $ref: '#/components/schemas/GeoObservationStatus'
+        answerText:
+          anyOf:
+          - type: string
+            maxLength: 100000
+            minLength: 1
+          - type: 'null'
+          title: Answertext
+        citations:
+          items:
+            $ref: '#/components/schemas/GeoCitation'
+          type: array
+          maxItems: 50
+          title: Citations
+          default: []
+        provider:
+          type: string
+          maxLength: 64
+          minLength: 1
+          pattern: ^[A-Z0-9_]+$
+          title: Provider
+        model:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Model
+        collectionMethod:
+          anyOf:
+          - type: string
+            maxLength: 128
+            pattern: ^[a-z][a-z0-9-]{0,127}$
+          - type: 'null'
+          title: Collectionmethod
+        startedAt:
+          type: string
+          format: date-time
+          title: Startedat
+        finishedAt:
+          type: string
+          format: date-time
+          title: Finishedat
+        latencyMs:
+          type: integer
+          maximum: 3600000.0
+          minimum: 0.0
+          title: Latencyms
+        stableErrorCode:
+          anyOf:
+          - type: string
+            maxLength: 128
+            minLength: 1
+            pattern: ^[A-Z][A-Z0-9_]{0,127}$
+          - type: 'null'
+          title: Stableerrorcode
+        usage:
+          $ref: '#/components/schemas/GeoProviderUsage'
+        providerCallCount:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Providercallcount
+      additionalProperties: false
+      type: object
+      required:
+      - platformCode
+      - questionId
+      - sampleNo
+      - status
+      - provider
+      - model
+      - startedAt
+      - finishedAt
+      - latencyMs
+      - providerCallCount
+      title: GeoObservation
+    GeoObservationStatus:
+      type: string
+      enum:
+      - SUCCEEDED
+      - FAILED
+      title: GeoObservationStatus
+    GeoPeriodReportSummaryErrorResponse:
+      properties:
+        detail:
+          $ref: '#/components/schemas/InternalErrorResponse'
+      type: object
+      required:
+      - detail
+      title: GeoPeriodReportSummaryErrorResponse
+    GeoPeriodReportSummaryRequest:
+      properties:
+        jobId:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,128}$
+          title: Jobid
+        inputHash:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+          title: Inputhash
+        deadlineAt:
+          type: string
+          format: date-time
+          title: Deadlineat
+        evidence:
+          additionalProperties:
+            $ref: '#/components/schemas/JsonValue'
+          type: object
+          maxProperties: 128
+          minProperties: 1
+          title: Evidence
+          description: 'Java-frozen JSON evidence, not instructions. Maximum 48 KiB UTF-8, depth 8, 2048
+            total nodes, 128 members per collection, 120 characters per key, 6000 characters per string.
+            Numeric values must be finite; integers signed 64-bit. Comparison is local to each topics[].platforms[]
+            record: comparisonStatus=COMPARABLE, positive commonSamples and finite baselineMentionRate/endMentionRate/deltaPercentagePoints
+            are required. Whole-report improvement claims are forbidden.'
+        title:
+          anyOf:
+          - type: string
+            maxLength: 120
+            minLength: 1
+          - type: 'null'
+          title: Title
+        focus:
+          anyOf:
+          - type: string
+            maxLength: 2000
+            minLength: 1
+          - type: 'null'
+          title: Focus
+      additionalProperties: false
+      type: object
+      required:
+      - jobId
+      - inputHash
+      - deadlineAt
+      - evidence
+      title: GeoPeriodReportSummaryRequest
+    GeoPeriodReportSummaryResponse:
+      properties:
+        jobId:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,128}$
+          title: Jobid
+        inputHash:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+          title: Inputhash
+        promptVersion:
+          type: string
+          const: GEO_PERIOD_REPORT_SUMMARY_V1
+          title: Promptversion
+          default: GEO_PERIOD_REPORT_SUMMARY_V1
+        summaryMarkdown:
+          type: string
+          maxLength: 6000
+          minLength: 1
+          title: Summarymarkdown
+        synthesisUsage:
+          $ref: '#/components/schemas/GeoPeriodReportSynthesisUsage'
+      additionalProperties: false
+      type: object
+      required:
+      - jobId
+      - inputHash
+      - summaryMarkdown
+      - synthesisUsage
+      title: GeoPeriodReportSummaryResponse
+    GeoPeriodReportSynthesisUsage:
+      properties:
+        provider:
+          type: string
+          enum:
+          - DEEPSEEK
+          - SYSTEM
+          const: DEEPSEEK
+          title: Provider
+          default: DEEPSEEK
+        model:
+          type: string
+          title: Model
+        inputTokens:
+          type: integer
+          minimum: 0.0
+          title: Inputtokens
+        outputTokens:
+          type: integer
+          minimum: 0.0
+          title: Outputtokens
+        providerCallCount:
+          type: integer
+          maximum: 2.0
+          minimum: 1.0
+          title: Providercallcount
+        latencyMs:
+          type: integer
+          maximum: 3600000.0
+          minimum: 0.0
+          title: Latencyms
+      additionalProperties: false
+      type: object
+      required:
+      - model
+      - inputTokens
+      - outputTokens
+      - providerCallCount
+      - latencyMs
+      title: GeoPeriodReportSynthesisUsage
+    GeoPlanEvidence:
+      properties:
+        key:
+          type: string
+          maxLength: 80
+          minLength: 1
+          title: Key
+        questionText:
+          type: string
+          maxLength: 300
+          minLength: 1
+          title: Questiontext
+        platformCode:
+          type: string
+          maxLength: 40
+          minLength: 1
+          title: Platformcode
+        answerExcerpt:
+          type: string
+          maxLength: 500
+          minLength: 1
+          title: Answerexcerpt
+      additionalProperties: false
+      type: object
+      required:
+      - key
+      - questionText
+      - platformCode
+      - answerExcerpt
+      title: GeoPlanEvidence
+    GeoPlanRecommendation:
+      properties:
+        id:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Id
+        priority:
+          type: string
+          maxLength: 32
+          minLength: 1
+          title: Priority
+        title:
+          type: string
+          maxLength: 300
+          minLength: 1
+          title: Title
+        rationale:
+          type: string
+          maxLength: 500
+          minLength: 1
+          title: Rationale
+      additionalProperties: false
+      type: object
+      required:
+      - id
+      - priority
+      - title
+      - rationale
+      title: GeoPlanRecommendation
+    GeoPlanReport:
+      properties:
+        reportId:
+          type: string
+          pattern: ^[1-9][0-9]{0,18}$
+          title: Reportid
+        methodVersion:
+          type: string
+          const: geo-synthesis-v1
+          title: Methodversion
+        summary:
+          type: string
+          maxLength: 1500
+          minLength: 1
+          title: Summary
+        status:
+          type: string
+          enum:
+          - SUCCEEDED
+          - PARTIAL
+          title: Status
+        sampleSize:
+          type: integer
+          maximum: 210.0
+          minimum: 1.0
+          title: Samplesize
+        recommendation:
+          anyOf:
+          - $ref: '#/components/schemas/GeoPlanRecommendation'
+          - type: 'null'
+        coverageGaps:
+          items:
+            type: string
+            maxLength: 300
+            minLength: 1
+          type: array
+          maxItems: 5
+          title: Coveragegaps
+        findings:
+          items:
+            type: string
+            maxLength: 300
+            minLength: 1
+          type: array
+          maxItems: 5
+          title: Findings
+        contentBlueprint:
+          items:
+            type: string
+            maxLength: 300
+            minLength: 1
+          type: array
+          maxItems: 5
+          title: Contentblueprint
+        missingSamples:
+          items:
+            type: string
+            maxLength: 300
+            minLength: 1
+          type: array
+          maxItems: 5
+          title: Missingsamples
+      additionalProperties: false
+      type: object
+      required:
+      - reportId
+      - methodVersion
+      - summary
+      - status
+      - sampleSize
+      - recommendation
+      - coverageGaps
+      - findings
+      - contentBlueprint
+      - missingSamples
+      title: GeoPlanReport
+    GeoPlatformCode:
+      type: string
+      enum:
+      - DOUBAO
+      - DEEPSEEK
+      - QWEN
+      - WENXIN
+      - KIMI
+      - YUANBAO
+      - ZHIPU
+      title: GeoPlatformCode
+    GeoProviderUsage:
+      properties:
+        inputTokens:
+          type: integer
+          minimum: 0.0
+          title: Inputtokens
+          default: 0
+        outputTokens:
+          type: integer
+          minimum: 0.0
+          title: Outputtokens
+          default: 0
+        searchRequests:
+          type: integer
+          minimum: 0.0
+          title: Searchrequests
+          default: 0
+        monetaryCost:
+          anyOf:
+          - type: string
+            maxLength: 64
+            pattern: ^\d+(\.\d+)?$
+          - type: 'null'
+          title: Monetarycost
+        currency:
+          anyOf:
+          - type: string
+            pattern: ^[A-Z]{3}$
+          - type: 'null'
+          title: Currency
+      additionalProperties: false
+      type: object
+      title: GeoProviderUsage
+    GeoQuestionSnapshot:
+      properties:
+        id:
+          type: string
+          pattern: ^[1-9][0-9]{0,18}$
+          title: Id
+        category:
+          type: string
+          const: BRAND_DISCOVERY
+          title: Category
+        text:
+          type: string
+          maxLength: 1000
+          minLength: 1
+          title: Text
+      additionalProperties: false
+      type: object
+      required:
+      - id
+      - category
+      - text
+      title: GeoQuestionSnapshot
+    GeoRecommendation:
+      properties:
+        priority:
+          type: string
+          pattern: ^P[012]$
+          title: Priority
+        title:
+          type: string
+          maxLength: 300
+          minLength: 1
+          title: Title
+        rationale:
+          type: string
+          maxLength: 1000
+          minLength: 1
+          title: Rationale
+      additionalProperties: false
+      type: object
+      required:
+      - priority
+      - title
+      - rationale
+      title: GeoRecommendation
+    GeoSynthesis:
+      properties:
+        summary:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Summary
+        coverageGaps:
+          items:
+            type: string
+            maxLength: 1000
+            minLength: 1
+          type: array
+          maxItems: 12
+          title: Coveragegaps
+          default: []
+        citationStructure:
+          items:
+            type: string
+            maxLength: 1000
+            minLength: 1
+          type: array
+          maxItems: 12
+          title: Citationstructure
+          default: []
+        competitorSignals:
+          items:
+            type: string
+            maxLength: 1000
+            minLength: 1
+          type: array
+          maxItems: 12
+          title: Competitorsignals
+          default: []
+        findings:
+          items:
+            type: string
+            maxLength: 1000
+            minLength: 1
+          type: array
+          maxItems: 16
+          title: Findings
+          default: []
+        recommendations:
+          items:
+            $ref: '#/components/schemas/GeoRecommendation'
+          type: array
+          maxItems: 8
+          title: Recommendations
+          default: []
+        contentBlueprint:
+          items:
+            type: string
+            maxLength: 1000
+            minLength: 1
+          type: array
+          maxItems: 12
+          title: Contentblueprint
+          default: []
+        competitorCandidates:
+          items:
+            $ref: '#/components/schemas/GeoCompetitorCandidate'
+          type: array
+          maxItems: 6
+          title: Competitorcandidates
+          default: []
+        competitorDiscoveryVersion:
+          anyOf:
+          - type: string
+            const: geo-competitor-discovery-v1
+          - type: 'null'
+          title: Competitordiscoveryversion
+        missingSamples:
+          items:
+            type: string
+            maxLength: 256
+            minLength: 1
+            pattern: ^[1-9][0-9]{0,18}:(DOUBAO|DEEPSEEK|QWEN|WENXIN|KIMI|YUANBAO|ZHIPU):[1-3]$
+          type: array
+          maxItems: 100
+          title: Missingsamples
+          default: []
+        methodVersion:
+          type: string
+          maxLength: 64
+          minLength: 1
+          pattern: ^[A-Za-z0-9._-]+$
+          title: Methodversion
+      additionalProperties: false
+      type: object
+      required:
+      - summary
+      - methodVersion
+      title: GeoSynthesis
+    GeoSynthesisContext:
+      properties:
+        topic:
+          $ref: '#/components/schemas/GeoTopicSnapshot'
+        questions:
+          items:
+            $ref: '#/components/schemas/GeoQuestionSnapshot'
+          type: array
+          maxItems: 10
+          minItems: 3
+          title: Questions
+        competitorSetVersion:
+          anyOf:
+          - type: integer
+            minimum: 1.0
+          - type: 'null'
+          title: Competitorsetversion
+        competitors:
+          items:
+            $ref: '#/components/schemas/GeoCompetitorSnapshot'
+          type: array
+          title: Competitors
+        monitoringTarget:
+          anyOf:
+          - $ref: '#/components/schemas/GeoMonitoringTarget'
+          - type: 'null'
+      additionalProperties: false
+      type: object
+      required:
+      - topic
+      - questions
+      - competitors
+      title: GeoSynthesisContext
+    GeoSynthesisRecoveryErrorResponse:
+      properties:
+        detail:
+          $ref: '#/components/schemas/InternalErrorResponse'
+      type: object
+      required:
+      - detail
+      title: GeoSynthesisRecoveryErrorResponse
+    GeoSynthesisRecoveryRequest:
+      properties:
+        jobId:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,128}$
+          title: Jobid
+        attempt:
+          type: integer
+          maximum: 2.0
+          minimum: 1.0
+          title: Attempt
+        inputHash:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+          title: Inputhash
+        deadlineAt:
+          type: string
+          format: date-time
+          title: Deadlineat
+        maxProviderCalls:
+          type: integer
+          maximum: 2.0
+          minimum: 2.0
+          title: Maxprovidercalls
+        authorizedContext:
+          $ref: '#/components/schemas/GeoSynthesisContext'
+        observations:
+          items:
+            $ref: '#/components/schemas/GeoObservation'
+          type: array
+          maxItems: 210
+          minItems: 1
+          title: Observations
+        evidenceProjection:
+          $ref: '#/components/schemas/GeoEvidenceProjection'
+        visibilityEvidence:
+          $ref: '#/components/schemas/GeoVisibilityEvidence'
+      additionalProperties: false
+      type: object
+      required:
+      - jobId
+      - attempt
+      - inputHash
+      - deadlineAt
+      - maxProviderCalls
+      - authorizedContext
+      - observations
+      - evidenceProjection
+      - visibilityEvidence
+      title: GeoSynthesisRecoveryRequest
+    GeoSynthesisRecoveryResponse:
+      properties:
+        jobId:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,128}$
+          title: Jobid
+        attempt:
+          type: integer
+          maximum: 2.0
+          minimum: 1.0
+          title: Attempt
+        inputHash:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+          title: Inputhash
+        synthesis:
+          $ref: '#/components/schemas/GeoSynthesis'
+        synthesisUsage:
+          $ref: '#/components/schemas/GeoSynthesisUsage'
+      additionalProperties: false
+      type: object
+      required:
+      - jobId
+      - attempt
+      - inputHash
+      - synthesis
+      - synthesisUsage
+      title: GeoSynthesisRecoveryResponse
+    GeoSynthesisUsage:
+      properties:
+        provider:
+          type: string
+          enum:
+          - DEEPSEEK
+          - SYSTEM
+          title: Provider
+          default: DEEPSEEK
+        model:
+          type: string
+          title: Model
+        inputTokens:
+          type: integer
+          minimum: 0.0
+          title: Inputtokens
+        outputTokens:
+          type: integer
+          minimum: 0.0
+          title: Outputtokens
+        providerCallCount:
+          type: integer
+          maximum: 10.0
+          minimum: 0.0
+          title: Providercallcount
+        latencyMs:
+          type: integer
+          maximum: 3600000.0
+          minimum: 0.0
+          title: Latencyms
+      additionalProperties: false
+      type: object
+      required:
+      - model
+      - inputTokens
+      - outputTokens
+      - providerCallCount
+      - latencyMs
+      title: GeoSynthesisUsage
+    GeoTopicSnapshot:
+      properties:
+        id:
+          type: string
+          pattern: ^[1-9][0-9]{0,18}$
+          title: Id
+        spaceId:
+          type: string
+          pattern: ^[1-9][0-9]{0,18}$
+          title: Spaceid
+        productId:
+          anyOf:
+          - type: string
+            pattern: ^[1-9][0-9]{0,18}$
+          - type: 'null'
+          title: Productid
+        name:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Name
+        region:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          title: Region
+        version:
+          type: integer
+          minimum: 1.0
+          title: Version
+      additionalProperties: false
+      type: object
+      required:
+      - id
+      - spaceId
+      - productId
+      - name
+      - region
+      - version
+      title: GeoTopicSnapshot
+    GeoVisibilityEvidence:
+      properties:
+        targetStatus:
+          type: string
+          enum:
+          - AVAILABLE
+          - TARGET_UNRESOLVED
+          title: Targetstatus
+        matchingVersion:
+          type: string
+          const: explicit-name-mention-v1
+          title: Matchingversion
+        units:
+          items:
+            $ref: '#/components/schemas/GeoVisibilityEvidenceUnit'
+          type: array
+          maxItems: 210
+          minItems: 1
+          title: Units
+      additionalProperties: false
+      type: object
+      required:
+      - targetStatus
+      - matchingVersion
+      - units
+      title: GeoVisibilityEvidence
+    GeoVisibilityEvidenceUnit:
+      properties:
+        questionId:
+          type: string
+          pattern: ^[1-9][0-9]{0,18}$
+          title: Questionid
+        platformCode:
+          type: string
+          pattern: ^(DOUBAO|DEEPSEEK|QWEN|WENXIN|KIMI|YUANBAO|ZHIPU)$
+          title: Platformcode
+        sampleNo:
+          type: integer
+          maximum: 3.0
+          minimum: 1.0
+          title: Sampleno
+        targetMentioned:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Targetmentioned
+      additionalProperties: false
+      type: object
+      required:
+      - questionId
+      - platformCode
+      - sampleNo
+      - targetMentioned
+      title: GeoVisibilityEvidenceUnit
+    GeoVisualPlan:
+      properties:
+        version:
+          type: string
+          const: geo-visual-plan-v1
+          title: Version
+        taskType:
+          type: string
+          enum:
+          - IMAGE
+          - VIDEO
+          title: Tasktype
+        opportunity:
+          type: string
+          maxLength: 300
+          minLength: 1
+          title: Opportunity
+        audience:
+          type: string
+          maxLength: 180
+          minLength: 1
+          title: Audience
+        message:
+          type: string
+          maxLength: 300
+          minLength: 1
+          title: Message
+        evidenceKeys:
+          items:
+            type: string
+            maxLength: 80
+            minLength: 1
+          type: array
+          maxItems: 8
+          minItems: 1
+          title: Evidencekeys
+        scene:
+          type: string
+          maxLength: 800
+          minLength: 1
+          title: Scene
+        visualFocus:
+          type: string
+          maxLength: 300
+          minLength: 1
+          title: Visualfocus
+        shotBeats:
+          items:
+            type: string
+            maxLength: 240
+            minLength: 1
+          type: array
+          maxItems: 3
+          title: Shotbeats
+        limitations:
+          items:
+            type: string
+            maxLength: 240
+            minLength: 1
+          type: array
+          maxItems: 4
+          minItems: 1
+          title: Limitations
+      additionalProperties: false
+      type: object
+      required:
+      - version
+      - taskType
+      - opportunity
+      - audience
+      - message
+      - evidenceKeys
+      - scene
+      - visualFocus
+      - shotBeats
+      - limitations
+      title: GeoVisualPlan
+    GeoVisualPlanRequest:
+      properties:
+        taskType:
+          type: string
+          enum:
+          - IMAGE
+          - VIDEO
+          title: Tasktype
+        report:
+          $ref: '#/components/schemas/GeoPlanReport'
+        evidence:
+          items:
+            $ref: '#/components/schemas/GeoPlanEvidence'
+          type: array
+          maxItems: 8
+          minItems: 1
+          title: Evidence
+        productFacts:
+          $ref: '#/components/schemas/ProductFacts'
+        prohibitedClaims:
+          items:
+            type: string
+            maxLength: 300
+            minLength: 1
+          type: array
+          maxItems: 20
+          title: Prohibitedclaims
+        userDirection:
+          anyOf:
+          - type: string
+            maxLength: 500
+            minLength: 1
+          - type: 'null'
+          title: Userdirection
+      additionalProperties: false
+      type: object
+      required:
+      - taskType
+      - report
+      - evidence
+      - productFacts
+      - prohibitedClaims
+      title: GeoVisualPlanRequest
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    IntentRouterCapability:
+      properties:
+        routerProvider:
+          type: string
+          title: Routerprovider
+        routerModel:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Routermodel
+        routerMode:
+          type: string
+          enum:
+          - NATIVE_LOOP
+          - DEEPSEEK_PRIMARY
+          - QWEN_SHADOW
+          - QWEN_PRIMARY
+          title: Routermode
+        available:
+          type: boolean
+          title: Available
+        schemaVersion:
+          type: string
+          title: Schemaversion
+        status:
+          $ref: '#/components/schemas/ProviderStatus'
+        reasonCode:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reasoncode
+      type: object
+      required:
+      - routerProvider
+      - routerModel
+      - routerMode
+      - available
+      - schemaVersion
+      - status
+      title: IntentRouterCapability
+    InternalErrorResponse:
+      properties:
+        code:
+          type: string
+          title: Code
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - code
+      - message
+      title: InternalErrorResponse
+    JsonValue: {}
+    LangfuseExportCapability:
+      properties:
+        status:
+          $ref: '#/components/schemas/LangfuseExportStatus'
+        reasonCode:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reasoncode
+      type: object
+      required:
+      - status
+      title: LangfuseExportCapability
+    LangfuseExportStatus:
+      type: string
+      enum:
+      - DISABLED
+      - NOT_CONFIGURED
+      - READY
+      - DEGRADED
+      title: LangfuseExportStatus
+    ModelGatewayCapability:
+      properties:
+        mode:
+          type: string
+          enum:
+          - MOCK
+          - REAL
+          - UNAVAILABLE
+          title: Mode
+        provider:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider
+        model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model
+        status:
+          $ref: '#/components/schemas/ProviderStatus'
+        reasonCode:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reasoncode
+      type: object
+      required:
+      - mode
+      - provider
+      - model
+      - status
+      title: ModelGatewayCapability
+    ProductFacts:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 150
+            minLength: 1
+          - type: 'null'
+          title: Name
+        category:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          title: Category
+        modelSpec:
+          anyOf:
+          - type: string
+            maxLength: 150
+          - type: 'null'
+          title: Modelspec
+        sellingPoints:
+          items:
+            type: string
+            maxLength: 500
+          type: array
+          maxItems: 50
+          title: Sellingpoints
+          default: []
+        parameters:
+          additionalProperties:
+            $ref: '#/components/schemas/JsonValue'
+          type: object
+          maxProperties: 100
+          title: Parameters
+        audience:
+          items:
+            type: string
+            maxLength: 200
+          type: array
+          maxItems: 50
+          title: Audience
+          default: []
+        usageScenarios:
+          items:
+            type: string
+            maxLength: 200
+          type: array
+          maxItems: 50
+          title: Usagescenarios
+          default: []
+      additionalProperties: false
+      type: object
+      title: ProductFacts
+      description: Exact fact fields frozen by Java; an absent field remains unknown.
+    ProfileCapability:
+      properties:
+        profileCode:
+          type: string
+          title: Profilecode
+        profileVersion:
+          type: string
+          title: Profileversion
+        taskTypes:
+          items:
+            $ref: '#/components/schemas/TaskType'
+          type: array
+          title: Tasktypes
+      type: object
+      required:
+      - profileCode
+      - profileVersion
+      - taskTypes
+      title: ProfileCapability
+    ProviderCapability:
+      properties:
+        code:
+          type: string
+          title: Code
+        status:
+          $ref: '#/components/schemas/ProviderStatus'
+        model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model
+      type: object
+      required:
+      - code
+      - status
+      title: ProviderCapability
+    ProviderStatus:
+      type: string
+      enum:
+      - AVAILABLE
+      - CONFIGURED
+      - UNAVAILABLE
+      - NOT_CONFIGURED
+      - MODEL_NOT_CONFIGURED
+      - DISABLED
+      title: ProviderStatus
+    QuestionCandidate:
+      properties:
+        text:
+          type: string
+          maxLength: 1000
+          minLength: 1
+          title: Text
+      additionalProperties: false
+      type: object
+      required:
+      - text
+      title: QuestionCandidate
+    ReadinessCheck:
+      properties:
+        name:
+          type: string
+          title: Name
+        status:
+          type: string
+          enum:
+          - READY
+          - NOT_READY
+          - DISABLED
+          - NOT_CONFIGURED
+          - DEGRADED
+          title: Status
+        reasonCode:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reasoncode
+      type: object
+      required:
+      - name
+      - status
+      title: ReadinessCheck
+    ReadinessResponse:
+      properties:
+        status:
+          type: string
+          enum:
+          - READY
+          - NOT_READY
+          title: Status
+        service:
+          type: string
+          title: Service
+        serviceVersion:
+          type: string
+          title: Serviceversion
+        checks:
+          items:
+            $ref: '#/components/schemas/ReadinessCheck'
+          type: array
+          title: Checks
+      type: object
+      required:
+      - status
+      - service
+      - serviceVersion
+      - checks
+      title: ReadinessResponse
+    RunBudget:
+      properties:
+        maxModelCalls:
+          type: integer
+          maximum: 16.0
+          minimum: 1.0
+          title: Maxmodelcalls
+          default: 4
+        maxToolCalls:
+          type: integer
+          maximum: 32.0
+          minimum: 1.0
+          title: Maxtoolcalls
+          default: 6
+        maxSteps:
+          type: integer
+          maximum: 64.0
+          minimum: 5.0
+          title: Maxsteps
+          default: 12
+        maxContextLoads:
+          type: integer
+          maximum: 1.0
+          minimum: 1.0
+          title: Maxcontextloads
+          default: 1
+        maxProviderCalls:
+          type: integer
+          maximum: 6.0
+          minimum: 0.0
+          title: Maxprovidercalls
+          default: 0
+        maxInputTokens:
+          type: integer
+          maximum: 128000.0
+          minimum: 128.0
+          title: Maxinputtokens
+          default: 32000
+        deadlineAt:
+          type: string
+          format: date-time
+          title: Deadlineat
+      additionalProperties: false
+      type: object
+      required:
+      - deadlineAt
+      title: RunBudget
+    RunStatus:
+      type: string
+      enum:
+      - QUEUED
+      - RUNNING
+      - COMPLETED
+      - FAILED
+      - STOPPED
+      title: RunStatus
+    StopRunResponse:
+      properties:
+        runId:
+          type: string
+          format: uuid
+          title: Runid
+        accepted:
+          type: boolean
+          title: Accepted
+        status:
+          $ref: '#/components/schemas/RunStatus'
+      additionalProperties: false
+      type: object
+      required:
+      - runId
+      - accepted
+      - status
+      title: StopRunResponse
+    TaskType:
+      enum:
+      - GEO
+      - IMAGE
+      - VIDEO
+      - ARTICLE
+      - MEDIA
+      title: TaskType
+      type: string
+    TrustedState:
+      properties:
+        selectedSpaceId:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Selectedspaceid
+        selectedProductId:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Selectedproductid
+        pendingInteractionId:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Pendinginteractionid
+        draftId:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Draftid
+        taskId:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Taskid
+      additionalProperties: false
+      type: object
+      title: TrustedState
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    Usage:
+      additionalProperties: false
+      properties:
+        workflowStepCount:
+          minimum: 0
+          title: Workflowstepcount
+          type: integer
+        modelCallCount:
+          minimum: 0
+          title: Modelcallcount
+          type: integer
+        contextLoadCount:
+          minimum: 0
+          title: Contextloadcount
+          type: integer
+        toolCallCount:
+          minimum: 0
+          title: Toolcallcount
+          type: integer
+        providerCallCount:
+          minimum: 0
+          title: Providercallcount
+          type: integer
+        modelCalls:
+          minimum: 0
+          title: Modelcalls
+          type: integer
+        toolCalls:
+          minimum: 0
+          title: Toolcalls
+          type: integer
+        steps:
+          minimum: 0
+          title: Steps
+          type: integer
+        estimatedInputTokens:
+          minimum: 0
+          title: Estimatedinputtokens
+          type: integer
+        providerInputTokens:
+          default: 0
+          minimum: 0
+          title: Providerinputtokens
+          type: integer
+        providerOutputTokens:
+          default: 0
+          minimum: 0
+          title: Provideroutputtokens
+          type: integer
+        providerLatencyMs:
+          default: 0
+          minimum: 0
+          title: Providerlatencyms
+          type: integer
+        provider:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Provider
+        model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Model
+      required:
+      - workflowStepCount
+      - modelCallCount
+      - contextLoadCount
+      - toolCallCount
+      - providerCallCount
+      - modelCalls
+      - toolCalls
+      - steps
+      - estimatedInputTokens
+      title: Usage
+      type: object
+    MessageDeltaPayload:
+      additionalProperties: false
+      allOf:
+      - else:
+          properties:
+            delta:
+              minLength: 1
+        if:
+          properties:
+            replace:
+              const: true
+          required:
+          - replace
+      description: Append text by default; replace also permits clearing a provisional native turn.
+      properties:
+        messageId:
+          maxLength: 128
+          minLength: 1
+          title: Messageid
+          type: string
+        delta:
+          maxLength: 16000
+          title: Delta
+          type: string
+        replace:
+          default: false
+          title: Replace
+          type: boolean
+      required:
+      - messageId
+      - delta
+      title: MessageDeltaPayload
+      type: object
+    BusinessOutcomeStatus:
+      enum:
+      - ANSWERED
+      - NEEDS_INPUT
+      - DRAFT_READY
+      - PARTIAL
+      - FAILED
+      title: BusinessOutcomeStatus
+      type: string
+    BusinessOutcome:
+      additionalProperties: false
+      description: Runtime-owned result; never included in a model's output schema.
+      properties:
+        schemaVersion:
+          const: 1
+          default: 1
+          title: Schemaversion
+          type: integer
+        status:
+          $ref: '#/components/schemas/BusinessOutcomeStatus'
+        reasonCode:
+          enum:
+          - INPUT_REQUIRED
+          - TASK_DRAFT_PROPOSED
+          - READONLY_PLANNER_UNAVAILABLE
+          - READONLY_PLAN_INVALID
+          - READONLY_EVIDENCE_UNAVAILABLE
+          - READONLY_PARTIAL_EVIDENCE
+          - READONLY_SYNTHESIS_UNAVAILABLE
+          - GEO_CONTEXT_UNAVAILABLE
+          - TASK_PARAMETERS_INVALID
+          - TASK_PREPARATION_REJECTED
+          - RESPONSE_PROTOCOL_INVALID
+          - AGENT_RUN_FAILED
+          - DRAFT_VERIFIED
+          type: string
+          title: Reasoncode
+        failureStage:
+          enum:
+          - LOOKUP
+          - PLAN
+          - TOOL
+          - SYNTHESIS
+          - PROTOCOL
+          type: string
+          title: Failurestage
+      required:
+      - status
+      title: BusinessOutcome
+      type: object
+    DraftOperation:
+      enum:
+      - NEW
+      - REVISE
+      title: DraftOperation
+      type: string
+    TaskDraftProposal:
+      additionalProperties: false
+      allOf:
+      - else:
+          properties:
+            previousDraftId:
+              type: 'null'
+        if:
+          properties:
+            draftOperation:
+              const: REVISE
+          required:
+          - draftOperation
+        then:
+          properties:
+            previousDraftId:
+              maxLength: 128
+              minLength: 1
+              type: string
+          required:
+          - previousDraftId
+      properties:
+        proposalOnly:
+          const: true
+          default: true
+          title: Proposalonly
+          type: boolean
+        taskType:
+          $ref: '#/components/schemas/TaskType'
+        parameterSchemaVersion:
+          default: 1
+          enum:
+          - 1
+          - 2
+          title: Parameterschemaversion
+          type: integer
+        spaceId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Spaceid
+        productId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Productid
+        sourceMessageId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Sourcemessageid
+        draftOperation:
+          $ref: '#/components/schemas/DraftOperation'
+          default: NEW
+        previousDraftId:
+          anyOf:
+          - maxLength: 128
+            minLength: 1
+            type: string
+          - type: 'null'
+          default: null
+          title: Previousdraftid
+        parameters:
+          additionalProperties:
+            $ref: '#/components/schemas/JsonValue'
+          description: IMAGE may include a frozen commerce-image-v1 visualBrief; absent on legacy drafts.
+          properties:
+            visualBrief:
+              additionalProperties: false
+              description: 'Creative choices only: no identity, price, or invented product facts.'
+              properties:
+                version:
+                  const: commerce-image-v1
+                  title: Version
+                  type: string
+                platform:
+                  enum:
+                  - GENERAL
+                  - PINDUODUO
+                  - TAOBAO
+                  - JD
+                  - DOUYIN
+                  - XIAOHONGSHU
+                  title: Platform
+                  type: string
+                placement:
+                  enum:
+                  - MAIN_IMAGE
+                  - DETAIL_IMAGE
+                  - SOCIAL_COVER
+                  - POSTER
+                  title: Placement
+                  type: string
+                visualFocus:
+                  maxLength: 160
+                  minLength: 1
+                  title: Visualfocus
+                  type: string
+                composition:
+                  maxLength: 240
+                  minLength: 1
+                  title: Composition
+                  type: string
+                background:
+                  maxLength: 180
+                  minLength: 1
+                  title: Background
+                  type: string
+                lighting:
+                  maxLength: 160
+                  minLength: 1
+                  title: Lighting
+                  type: string
+                textPolicy:
+                  enum:
+                  - NONE
+                  - USER_SUPPLIED
+                  title: Textpolicy
+                  type: string
+                copyLines:
+                  items:
+                    maxLength: 40
+                    minLength: 1
+                    type: string
+                  maxItems: 3
+                  title: Copylines
+                  type: array
+              required:
+              - version
+              - platform
+              - placement
+              - visualFocus
+              - composition
+              - background
+              - lighting
+              - textPolicy
+              - copyLines
+              title: ImageVisualBrief
+              type: object
+          title: Parameters
+          type: object
+        warnings:
+          default:
+          - 请核对草稿内容和预计积分；只有你确认后才会开始执行。
+          items:
+            type: string
+          title: Warnings
+          type: array
+      required:
+      - taskType
+      - spaceId
+      - productId
+      - parameters
+      title: TaskDraftProposal
+      type: object
+    ArticleBody:
+      additionalProperties: false
+      properties:
+        markdown:
+          maxLength: 524288
+          minLength: 1
+          title: Markdown
+          type: string
+        blocks:
+          items:
+            $ref: '#/components/schemas/ArticleBodyBlock'
+          maxItems: 100
+          minItems: 1
+          title: Blocks
+          type: array
+      required:
+      - markdown
+      - blocks
+      title: ArticleBody
+      type: object
+    ArticleBodyBlock:
+      additionalProperties: false
+      properties:
+        key:
+          maxLength: 64
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$
+          title: Key
+          type: string
+        heading:
+          maxLength: 300
+          minLength: 1
+          title: Heading
+          type: string
+        markdown:
+          maxLength: 131072
+          minLength: 1
+          title: Markdown
+          type: string
+      required:
+      - key
+      - heading
+      - markdown
+      title: ArticleBodyBlock
+      type: object
+    ArticleConfirmedFacts:
+      additionalProperties: false
+      description: 'Java-scoped source excerpts explicitly affirmed by a persisted USER message.
+
+
+        This is attributable customer evidence, not an independent verification,
+
+        current instruction, saved-memory receipt, or permission to execute tools.'
+      properties:
+        source:
+          const: USER_CONFIRMED_SOURCE_EXCERPT
+          title: Source
+          type: string
+        projectId:
+          pattern: ^[1-9][0-9]{0,18}$
+          title: Projectid
+          type: string
+        conversationId:
+          pattern: ^[1-9][0-9]{0,18}$
+          title: Conversationid
+          type: string
+        sourceAssistantMessageId:
+          pattern: ^[1-9][0-9]{0,18}$
+          title: Sourceassistantmessageid
+          type: string
+        confirmationUserMessageId:
+          pattern: ^[1-9][0-9]{0,18}$
+          title: Confirmationusermessageid
+          type: string
+        sourceCreatedAt:
+          maxLength: 40
+          minLength: 1
+          title: Sourcecreatedat
+          type: string
+        confirmedAt:
+          maxLength: 40
+          minLength: 1
+          title: Confirmedat
+          type: string
+        sourceUrl:
+          anyOf:
+          - maxLength: 2048
+            minLength: 1
+            type: string
+          - type: 'null'
+          default: null
+          title: Sourceurl
+        sourceExcerpt:
+          maxLength: 2000
+          minLength: 1
+          title: Sourceexcerpt
+          type: string
+        confirmationQuote:
+          maxLength: 500
+          minLength: 1
+          title: Confirmationquote
+          type: string
+        facts:
+          items:
+            type: string
+          maxItems: 10
+          minItems: 1
+          title: Facts
+          type: array
+      required:
+      - source
+      - projectId
+      - conversationId
+      - sourceAssistantMessageId
+      - confirmationUserMessageId
+      - sourceCreatedAt
+      - confirmedAt
+      - sourceExcerpt
+      - confirmationQuote
+      - facts
+      title: ArticleConfirmedFacts
+      type: object
+    ArticleExecutionBudget:
+      additionalProperties: false
+      properties:
+        deadlineAt:
+          format: date-time
+          title: Deadlineat
+          type: string
+        maxModelCalls:
+          default: 2
+          maximum: 10
+          minimum: 1
+          title: Maxmodelcalls
+          type: integer
+        maxRepairRetries:
+          default: 1
+          maximum: 1
+          minimum: 0
+          title: Maxrepairretries
+          type: integer
+        maxInputTokens:
+          default: 16000
+          maximum: 200000
+          minimum: 1
+          title: Maxinputtokens
+          type: integer
+        maxOutputTokens:
+          default: 4096
+          maximum: 64000
+          minimum: 1
+          title: Maxoutputtokens
+          type: integer
+      required:
+      - deadlineAt
+      title: ArticleExecutionBudget
+      type: object
+    ArticleGeoRecommendation:
+      additionalProperties: false
+      properties:
+        priority:
+          enum:
+          - P0
+          - P1
+          - P2
+          title: Priority
+          type: string
+        title:
+          maxLength: 300
+          minLength: 1
+          title: Title
+          type: string
+        rationale:
+          maxLength: 1000
+          minLength: 1
+          title: Rationale
+          type: string
+      required:
+      - priority
+      - title
+      - rationale
+      title: ArticleGeoRecommendation
+      type: object
+    ArticleGeoReportSummary:
+      additionalProperties: false
+      properties:
+        geoReportId:
+          pattern: ^[1-9][0-9]{0,18}$
+          title: Georeportid
+          type: string
+        summary:
+          maxLength: 4000
+          minLength: 1
+          title: Summary
+          type: string
+        methodVersion:
+          maxLength: 128
+          minLength: 1
+          pattern: ^[A-Za-z0-9._-]+$
+          title: Methodversion
+          type: string
+        coverageGaps:
+          default: []
+          items:
+            type: string
+          maxItems: 20
+          title: Coveragegaps
+          type: array
+        findings:
+          default: []
+          items:
+            type: string
+          maxItems: 50
+          title: Findings
+          type: array
+        recommendations:
+          default: []
+          items:
+            $ref: '#/components/schemas/ArticleGeoRecommendation'
+          maxItems: 30
+          title: Recommendations
+          type: array
+        contentBlueprint:
+          default: []
+          items:
+            type: string
+          maxItems: 50
+          title: Contentblueprint
+          type: array
+        missingSamples:
+          default: []
+          items:
+            type: string
+          maxItems: 50
+          title: Missingsamples
+          type: array
+      required:
+      - geoReportId
+      - summary
+      - methodVersion
+      title: ArticleGeoReportSummary
+      type: object
+    ArticleOutlineItem:
+      additionalProperties: false
+      properties:
+        key:
+          maxLength: 64
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$
+          title: Key
+          type: string
+        sequence:
+          maximum: 12
+          minimum: 1
+          title: Sequence
+          type: integer
+        level:
+          maximum: 6
+          minimum: 1
+          title: Level
+          type: integer
+        heading:
+          maxLength: 300
+          minLength: 1
+          title: Heading
+          type: string
+        brief:
+          maxLength: 1000
+          minLength: 1
+          title: Brief
+          type: string
+      required:
+      - key
+      - sequence
+      - level
+      - heading
+      - brief
+      title: ArticleOutlineItem
+      type: object
+    ArticlePlan:
+      additionalProperties: false
+      properties:
+        summary:
+          maxLength: 1000
+          minLength: 1
+          title: Summary
+          type: string
+        coreMessage:
+          maxLength: 2000
+          minLength: 1
+          title: Coremessage
+          type: string
+        targetAudience:
+          maxLength: 1000
+          minLength: 1
+          title: Targetaudience
+          type: string
+        sections:
+          items:
+            $ref: '#/components/schemas/ArticleOutlineItem'
+          maxItems: 12
+          minItems: 2
+          title: Sections
+          type: array
+        tone:
+          maxLength: 64
+          pattern: ^[A-Z][A-Z0-9_]{0,63}$
+          title: Tone
+          type: string
+        targetLength:
+          $ref: '#/components/schemas/ArticleTargetLength'
+        targetPlatform:
+          anyOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Targetplatform
+        riskNotes:
+          items:
+            maxLength: 500
+            minLength: 1
+            type: string
+          maxItems: 20
+          title: Risknotes
+          type: array
+          uniqueItems: true
+      required:
+      - summary
+      - coreMessage
+      - targetAudience
+      - sections
+      - tone
+      - targetLength
+      - targetPlatform
+      - riskNotes
+      title: ArticlePlan
+      type: object
+    ArticleSourceAssetSummary:
+      additionalProperties: false
+      properties:
+        assetId:
+          pattern: ^[1-9][0-9]{0,18}$
+          title: Assetid
+          type: string
+        assetType:
+          const: IMAGE
+          default: IMAGE
+          title: Assettype
+          type: string
+        summary:
+          maxLength: 2000
+          minLength: 1
+          title: Summary
+          type: string
+      required:
+      - assetId
+      - summary
+      title: ArticleSourceAssetSummary
+      type: object
+    ArticleStage:
+      enum:
+      - TITLE
+      - OUTLINE
+      - BODY
+      - REWRITE
+      title: ArticleStage
+      type: string
+    ArticleTargetLength:
+      enum:
+      - SHORT
+      - MEDIUM
+      - LONG
+      title: ArticleTargetLength
+      type: string
+    KnowledgeContext:
+      additionalProperties: false
+      properties:
+        documents:
+          items:
+            $ref: '#/components/schemas/KnowledgeDocument'
+          maxItems: 12
+          title: Documents
+          type: array
+        preferences:
+          items:
+            $ref: '#/components/schemas/MemoryPreference'
+          maxItems: 100
+          title: Preferences
+          type: array
+        businessHistory:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectBusinessHistory'
+          - type: 'null'
+        truncated:
+          title: Truncated
+          type: boolean
+        sourceCount:
+          minimum: 0
+          title: Sourcecount
+          type: integer
+        returnedCharacters:
+          maximum: 12000
+          minimum: 0
+          title: Returnedcharacters
+          type: integer
+        memory:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectMemoryContext'
+          - type: 'null'
+          default: null
+      required:
+      - documents
+      - preferences
+      - businessHistory
+      - truncated
+      - sourceCount
+      - returnedCharacters
+      title: KnowledgeContext
+      type: object
+    KnowledgeDocument:
+      additionalProperties: false
+      properties:
+        id:
+          pattern: ^[1-9][0-9]{0,18}$
+          title: Id
+          type: string
+        version:
+          minimum: 1
+          title: Version
+          type: integer
+        name:
+          maxLength: 255
+          minLength: 1
+          title: Name
+          type: string
+        sha256:
+          pattern: ^[0-9a-f]{64}$
+          title: Sha256
+          type: string
+        sourceType:
+          enum:
+          - PASTED_TEXT
+          - LINK_PASTED_TEXT
+          - TXT
+          - MARKDOWN
+          - PDF
+          title: Sourcetype
+          type: string
+        sourceUrl:
+          anyOf:
+          - maxLength: 2048
+            type: string
+          - type: 'null'
+          title: Sourceurl
+        paragraphs:
+          items:
+            $ref: '#/components/schemas/KnowledgeParagraph'
+          maxItems: 200
+          title: Paragraphs
+          type: array
+      required:
+      - id
+      - version
+      - name
+      - sha256
+      - sourceType
+      - sourceUrl
+      - paragraphs
+      title: KnowledgeDocument
+      type: object
+    KnowledgeParagraph:
+      additionalProperties: false
+      properties:
+        index:
+          minimum: 1
+          title: Index
+          type: integer
+        page:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          title: Page
+        text:
+          maxLength: 1000
+          title: Text
+          type: string
+      required:
+      - index
+      - page
+      - text
+      title: KnowledgeParagraph
+      type: object
+    MemoryPreference:
+      additionalProperties: false
+      properties:
+        id:
+          pattern: ^[1-9][0-9]{0,18}$
+          title: Id
+          type: string
+        projectId:
+          anyOf:
+          - pattern: ^[1-9][0-9]{0,18}$
+            type: string
+          - type: 'null'
+          title: Projectid
+        scope:
+          enum:
+          - PERSONAL
+          - PROJECT
+          title: Scope
+          type: string
+        content:
+          maxLength: 1000
+          minLength: 1
+          title: Content
+          type: string
+        sourceType:
+          enum:
+          - USER_INPUT
+          - USER_MESSAGE
+          title: Sourcetype
+          type: string
+        sourceMessageId:
+          anyOf:
+          - pattern: ^[1-9][0-9]{0,18}$
+            type: string
+          - type: 'null'
+          title: Sourcemessageid
+        version:
+          minimum: 1
+          title: Version
+          type: integer
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+      required:
+      - id
+      - projectId
+      - scope
+      - content
+      - sourceType
+      - sourceMessageId
+      - version
+      - createdAt
+      - updatedAt
+      title: MemoryPreference
+      type: object
+    ProjectBusinessHistory:
+      additionalProperties: false
+      properties:
+        projectId:
+          pattern: ^[1-9][0-9]{0,18}$
+          title: Projectid
+          type: string
+        writtenArticleCount:
+          minimum: 0
+          title: Writtenarticlecount
+          type: integer
+        publishedArticleCount:
+          minimum: 0
+          title: Publishedarticlecount
+          type: integer
+        publishedPlacementCount:
+          minimum: 0
+          title: Publishedplacementcount
+          type: integer
+        asOf:
+          format: date-time
+          title: Asof
+          type: string
+      required:
+      - projectId
+      - writtenArticleCount
+      - publishedArticleCount
+      - publishedPlacementCount
+      - asOf
+      title: ProjectBusinessHistory
+      type: object
+    ProjectMemoryContext:
+      additionalProperties: false
+      properties:
+        schemaVersion:
+          const: 1
+          title: Schemaversion
+          type: integer
+        projectId:
+          anyOf:
+          - pattern: ^[1-9][0-9]{0,18}$
+            type: string
+          - type: 'null'
+          title: Projectid
+        entries:
+          items:
+            $ref: '#/components/schemas/ProjectMemoryEntry'
+          maxItems: 200
+          title: Entries
+          type: array
+        revision:
+          maxLength: 128
+          minLength: 1
+          title: Revision
+          type: string
+        historyCutoffAt:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Historycutoffat
+      required:
+      - schemaVersion
+      - projectId
+      - entries
+      - revision
+      - historyCutoffAt
+      title: ProjectMemoryContext
+      type: object
+    ProjectMemoryEntry:
+      additionalProperties: false
+      properties:
+        id:
+          pattern: ^[1-9][0-9]{0,18}$
+          title: Id
+          type: string
+        scope:
+          enum:
+          - PROJECT
+          - ACCOUNT
+          title: Scope
+          type: string
+        projectId:
+          anyOf:
+          - pattern: ^[1-9][0-9]{0,18}$
+            type: string
+          - type: 'null'
+          title: Projectid
+        kind:
+          enum:
+          - FACT
+          - PREFERENCE
+          title: Kind
+          type: string
+        key:
+          pattern: ^[a-z][a-z0-9_.-]{0,63}$
+          title: Key
+          type: string
+        label:
+          maxLength: 100
+          minLength: 1
+          title: Label
+          type: string
+        value:
+          anyOf:
+          - maxLength: 2000
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Value
+        version:
+          minimum: 1
+          title: Version
+          type: integer
+        deleted:
+          title: Deleted
+          type: boolean
+        sourceType:
+          enum:
+          - USER_MESSAGE
+          - USER_INPUT
+          title: Sourcetype
+          type: string
+        sourceMessageId:
+          anyOf:
+          - pattern: ^[1-9][0-9]{0,18}$
+            type: string
+          - type: 'null'
+          title: Sourcemessageid
+        sourceConversationId:
+          anyOf:
+          - pattern: ^[1-9][0-9]{0,18}$
+            type: string
+          - type: 'null'
+          title: Sourceconversationid
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+      required:
+      - id
+      - scope
+      - projectId
+      - kind
+      - key
+      - label
+      - value
+      - version
+      - deleted
+      - sourceType
+      - sourceMessageId
+      - sourceConversationId
+      - updatedAt
+      title: ProjectMemoryEntry
+      type: object
+    WebResearchEvidence:
+      additionalProperties: false
+      properties:
+        sourceType:
+          const: WEB_SEARCH_EXCERPTS
+          title: Sourcetype
+          type: string
+        fullPagesRead:
+          const: false
+          title: Fullpagesread
+          type: boolean
+        sources:
+          items:
+            $ref: '#/components/schemas/WebResearchSource'
+          maxItems: 8
+          minItems: 1
+          title: Sources
+          type: array
+      required:
+      - sourceType
+      - fullPagesRead
+      - sources
+      title: WebResearchEvidence
+      type: object
+    WebResearchSource:
+      additionalProperties: false
+      properties:
+        title:
+          anyOf:
+          - maxLength: 500
+            type: string
+          - type: 'null'
+          default: null
+          title: Title
+        url:
+          maxLength: 2048
+          minLength: 8
+          title: Url
+          type: string
+        snippet:
+          anyOf:
+          - maxLength: 600
+            type: string
+          - type: 'null'
+          default: null
+          title: Snippet
+        observedAt:
+          maxLength: 64
+          minLength: 1
+          title: Observedat
+          type: string
+      required:
+      - url
+      - observedAt
+      title: WebResearchSource
+      type: object
+    ArticleExecutionRequest:
+      additionalProperties: false
+      properties:
+        mode:
+          $ref: '#/components/schemas/ArticleStage'
+        articleId:
+          pattern: ^[1-9][0-9]{0,18}$
+          title: Articleid
+          type: string
+        brief:
+          maxLength: 4000
+          minLength: 1
+          title: Brief
+          type: string
+        selectedTitle:
+          anyOf:
+          - maxLength: 300
+            minLength: 1
+            type: string
+          - type: 'null'
+          default: null
+          title: Selectedtitle
+        confirmedOutline:
+          default: []
+          items:
+            $ref: '#/components/schemas/ArticleOutlineItem'
+          maxItems: 100
+          title: Confirmedoutline
+          type: array
+        confirmedPlan:
+          anyOf:
+          - $ref: '#/components/schemas/ArticlePlan'
+          - type: 'null'
+          default: null
+        rewriteInstruction:
+          anyOf:
+          - maxLength: 4000
+            minLength: 1
+            type: string
+          - type: 'null'
+          default: null
+          title: Rewriteinstruction
+        targetLength:
+          $ref: '#/components/schemas/ArticleTargetLength'
+          default: MEDIUM
+        tone:
+          default: PROFESSIONAL
+          maxLength: 64
+          pattern: ^[A-Z][A-Z0-9_]{0,63}$
+          title: Tone
+          type: string
+        targetPlatform:
+          anyOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - type: 'null'
+          default: null
+          title: Targetplatform
+        sourceAssetIds:
+          default: []
+          items:
+            pattern: ^[1-9][0-9]{0,18}$
+            type: string
+          maxItems: 10
+          title: Sourceassetids
+          type: array
+        geoReportId:
+          anyOf:
+          - pattern: ^[1-9][0-9]{0,18}$
+            type: string
+          - type: 'null'
+          default: null
+          title: Georeportid
+        spaceSummary:
+          anyOf:
+          - maxLength: 2000
+            minLength: 1
+            type: string
+          - type: 'null'
+          default: null
+          title: Spacesummary
+        brandSummary:
+          anyOf:
+          - maxLength: 4000
+            minLength: 1
+            type: string
+          - type: 'null'
+          default: null
+          title: Brandsummary
+        productSummary:
+          anyOf:
+          - maxLength: 4000
+            minLength: 1
+            type: string
+          - type: 'null'
+          default: null
+          title: Productsummary
+        sourceAssetSummaries:
+          default: []
+          items:
+            $ref: '#/components/schemas/ArticleSourceAssetSummary'
+          maxItems: 10
+          title: Sourceassetsummaries
+          type: array
+        geoReportSummary:
+          anyOf:
+          - $ref: '#/components/schemas/ArticleGeoReportSummary'
+          - type: 'null'
+          default: null
+        knowledgeContext:
+          anyOf:
+          - $ref: '#/components/schemas/KnowledgeContext'
+          - type: 'null'
+          default: null
+        untrustedResearch:
+          anyOf:
+          - $ref: '#/components/schemas/WebResearchEvidence'
+          - type: 'null'
+          default: null
+        confirmedFacts:
+          default: []
+          items:
+            $ref: '#/components/schemas/ArticleConfirmedFacts'
+          maxItems: 3
+          title: Confirmedfacts
+          type: array
+        currentBody:
+          anyOf:
+          - $ref: '#/components/schemas/ArticleBody'
+          - type: 'null'
+          default: null
+        currentVersionRef:
+          anyOf:
+          - maxLength: 128
+            minLength: 1
+            pattern: ^[A-Za-z0-9._:-]+$
+            type: string
+          - type: 'null'
+          default: null
+          title: Currentversionref
+        rewriteBlockIds:
+          default: []
+          items:
+            type: string
+          maxItems: 100
+          title: Rewriteblockids
+          type: array
+        budget:
+          $ref: '#/components/schemas/ArticleExecutionBudget'
+      required:
+      - mode
+      - articleId
+      - brief
+      - budget
+      title: ArticleExecutionRequest
+      type: object
+    ArticleExecutionMetadata:
+      additionalProperties: false
+      properties:
+        proposalOnly:
+          const: true
+          default: true
+          title: Proposalonly
+          type: boolean
+        persisted:
+          const: false
+          default: false
+          title: Persisted
+          type: boolean
+        published:
+          const: false
+          default: false
+          title: Published
+          type: boolean
+        authorizedRewriteBlockIds:
+          default: []
+          items:
+            type: string
+          maxItems: 100
+          title: Authorizedrewriteblockids
+          type: array
+      title: ArticleExecutionMetadata
+      type: object
+    ArticleTitleCandidate:
+      additionalProperties: false
+      properties:
+        text:
+          maxLength: 300
+          minLength: 1
+          title: Text
+          type: string
+        rationale:
+          maxLength: 300
+          minLength: 1
+          title: Rationale
+          type: string
+      required:
+      - text
+      - rationale
+      title: ArticleTitleCandidate
+      type: object
+    ArticleUsage:
+      additionalProperties: false
+      properties:
+        modelCallCount:
+          maximum: 10
+          minimum: 1
+          title: Modelcallcount
+          type: integer
+        inputTokens:
+          minimum: 0
+          title: Inputtokens
+          type: integer
+        outputTokens:
+          minimum: 0
+          title: Outputtokens
+          type: integer
+        latencyMs:
+          minimum: 0
+          title: Latencyms
+          type: integer
+        monetaryCost:
+          default: null
+          title: Monetarycost
+          type: 'null'
+        currency:
+          default: null
+          title: Currency
+          type: 'null'
+      required:
+      - modelCallCount
+      - inputTokens
+      - outputTokens
+      - latencyMs
+      title: ArticleUsage
+      type: object
+    ArticleExecutionResult:
+      additionalProperties: false
+      properties:
+        mode:
+          $ref: '#/components/schemas/ArticleStage'
+        titleCandidates:
+          default: []
+          items:
+            $ref: '#/components/schemas/ArticleTitleCandidate'
+          maxItems: 5
+          title: Titlecandidates
+          type: array
+        title:
+          anyOf:
+          - maxLength: 300
+            minLength: 1
+            type: string
+          - type: 'null'
+          default: null
+          title: Title
+        plan:
+          anyOf:
+          - $ref: '#/components/schemas/ArticlePlan'
+          - type: 'null'
+          default: null
+        outline:
+          default: []
+          items:
+            $ref: '#/components/schemas/ArticleOutlineItem'
+          maxItems: 100
+          title: Outline
+          type: array
+        body:
+          anyOf:
+          - $ref: '#/components/schemas/ArticleBody'
+          - type: 'null'
+          default: null
+        provider:
+          const: DEEPSEEK
+          title: Provider
+          type: string
+        model:
+          maxLength: 128
+          minLength: 1
+          title: Model
+          type: string
+        modelVersion:
+          maxLength: 64
+          minLength: 1
+          title: Modelversion
+          type: string
+        promptVersion:
+          maxLength: 64
+          minLength: 1
+          title: Promptversion
+          type: string
+        usage:
+          $ref: '#/components/schemas/ArticleUsage'
+        warnings:
+          default: []
+          items:
+            maxLength: 500
+            minLength: 1
+            type: string
+          maxItems: 20
+          title: Warnings
+          type: array
+        metadata:
+          $ref: '#/components/schemas/ArticleExecutionMetadata'
+      required:
+      - mode
+      - provider
+      - model
+      - modelVersion
+      - promptVersion
+      - usage
+      - metadata
+      title: ArticleExecutionResult
+      type: object
+    RunProgressStage:
+      enum:
+      - UNDERSTANDING_REQUEST
+      - LOADING_BUSINESS_CONTEXT
+      - LOADING_PRODUCT_CONTEXT
+      - LOADING_REFERENCE_ASSETS
+      - ROUTING_INTENT
+      - PLANNING_WORKFLOW
+      - RUNNING_SAFE_TOOL
+      - SEARCHING_WEB
+      - PREPARING_TASK_DRAFT
+      - COMPOSING_RESPONSE
+      title: RunProgressStage
+      type: string
+    RunProgressStatus:
+      enum:
+      - RUNNING
+      - SUCCEEDED
+      - FAILED
+      title: RunProgressStatus
+      type: string
+    RunProgressPayload:
+      additionalProperties: false
+      properties:
+        stageCode:
+          $ref: '#/components/schemas/RunProgressStage'
+        status:
+          $ref: '#/components/schemas/RunProgressStatus'
+        ordinal:
+          maximum: 32
+          minimum: 1
+          title: Ordinal
+          type: integer
+        elapsedMs:
+          minimum: 0
+          title: Elapsedms
+          type: integer
+        current:
+          anyOf:
+          - minimum: 0
+            type: integer
+          - type: 'null'
+          default: null
+          title: Current
+        total:
+          anyOf:
+          - minimum: 0
+            type: integer
+          - type: 'null'
+          default: null
+          title: Total
+      required:
+      - stageCode
+      - status
+      - ordinal
+      - elapsedMs
+      title: RunProgressPayload
+      type: object
+  securitySchemes:
+    InternalHmac:
+      type: apiKey
+      in: header
+      name: X-Internal-Signature
+      description: HMAC-SHA256 Base64 signature. The companion key ID, epoch-second timestamp, UUID nonce,
+        and lowercase body SHA-256 headers are mandatory.
+  parameters:
+    InternalKeyId:
+      in: header
+      name: X-Internal-Key-Id
+      required: true
+      schema:
+        type: string
+    InternalTimestamp:
+      in: header
+      name: X-Internal-Timestamp
+      required: true
+      schema:
+        type: string
+        pattern: ^-?[0-9]{1,20}$
+    InternalNonce:
+      in: header
+      name: X-Internal-Nonce
+      required: true
+      schema:
+        type: string
+        format: uuid
+        pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+      description: A canonical lowercase UUID. Uppercase or non-canonical forms are rejected before the
+        Nonce claim.
+    ContentSha256:
+      in: header
+      name: X-Content-SHA256
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{64}$
+    InternalSignature:
+      in: header
+      name: X-Internal-Signature
+      required: true
+      schema:
+        type: string
+        maxLength: 128
+    Traceparent:
+      in: header
+      name: traceparent
+      required: false
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{2}-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$
+      description: A valid W3C context is continued; otherwise Python creates a new one.

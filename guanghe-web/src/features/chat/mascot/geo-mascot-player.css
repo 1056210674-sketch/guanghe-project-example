@@ -1,0 +1,22 @@
+.geo-mascot-player {
+  position: relative;
+  width: var(--geo-mascot-size, 96px);
+  max-width: 100%;
+  aspect-ratio: 1;
+  flex: 0 0 auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.geo-mascot-player > canvas,
+.geo-mascot-player > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+}
+
+.geo-mascot-player > [hidden] {
+  display: none;
+}
